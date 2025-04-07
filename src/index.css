@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.blue-gradient-bg {
+  background-color: #4795c2;
+  position: relative;
+  overflow: hidden;
+}
+
+.blue-gradient-bg::before {
+  content: "";
+  position: absolute;
+  width: 1000px;
+  height: 1000px;
+  border-radius: 50%;
+  background-color: rgba(172, 220, 231, 0.5);
+  bottom: -500px;
+  left: -300px;
+  z-index: 0;
+}
+
+.blue-gradient-bg::after {
+  content: "";
+  position: absolute;
+  width: 1200px;
+  height: 1200px;
+  border-radius: 50%;
+  background-color: rgba(172, 220, 231, 0.5);
+  bottom: -400px;
+  right: -400px;
+  z-index: 0;
+}
+
+.content-container {
+  position: relative;
+  z-index: 1;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #215273;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: flex;
+  overflow: hidden;
+}
+
+.dropdown-menu button {
+  padding: 8px 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-divider {
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.add-menu {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  z-index: 50;
+}
+
+.add-menu-item {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.add-menu-item:hover {
+  transform: translateX(-5px);
+}
+
+.add-menu-item span {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
