@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React from "react";
+import React from "react"
 
 function PageIndicator({ totalPages, currentPage, onPageChange }) {
   const getPageItems = () => {
@@ -53,7 +53,7 @@ function PageIndicator({ totalPages, currentPage, onPageChange }) {
     <div className="relative z-10 flex items-center justify-center gap-2 my-8">
       {getPageItems()}
     </div>
-  );
+  )
 }
 
-export default PageIndicator;
+export default PageIndicator
