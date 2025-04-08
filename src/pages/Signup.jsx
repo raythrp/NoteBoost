@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import Logo from "../../components/desktop/Logo"
-import Separator from "../../components/desktop/Separator"
-import { useAuth } from "../../contexts/AuthContext"
+import Logo from "../components/icons/Logo"
+import Separator from "../components/Separator"
+import { useAuth } from "../contexts/AuthContext"
 
 const Signup = () => {
   const navigate = useNavigate()

@@ -1,23 +1,31 @@
-import Image from "../desktop/Logo" // Assuming we have a Logo component that can serve as avatar
 
-export default function NavbarMobile() {
+import { useAuth } from "../../contexts/AuthContext";
+
+function Navbar() {
+  const { user } = useAuth();
+  const displayName = user?.name || "Cacing Pintar";
+
   return (
-    <nav className="absolute w-[402px] h-[58px] left-0 top-0 bg-white border border-black backdrop-blur-sm z-10">
-      <div className="absolute w-[107px] h-[19px] left-[22px] top-[20px] font-inter text-base font-normal">
-        Select a Note!
-      </div>
-
-      <div className="absolute w-[122px] h-[35px] left-[266px] top-[10px] flex items-center gap-2">
-        <div className="relative w-[35px] h-[35px]">
-          <Image
-            src="/placeholder.svg"
-            alt="Avatar"
-            className="w-[35px] h-[35px] rounded-full"
-          />
+    <nav className="w-full h-[58px] bg-white border-b border-gray-200 backdrop-blur-sm sticky top-0 z-10">
+      <div className="container flex items-center justify-between h-full px-4 mx-auto">
+        <div className="flex items-center">
+          <span className="text-base font-normal text-black">Select a Note!</span>
         </div>
-        <span className="text-[#215273] text-xs font-semibold">Cacing Pintar</span>
+
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="relative w-[35px] h-[35px] rounded-full overflow-hidden">
+              <div className="w-full h-full bg-gray-300"></div>
+            </div>
+            <span className="text-[#215273] font-semibold text-[16px]">
+              {displayName}
+            </span>
+          </div>
+        </div>
       </div>
     </nav>
   )
 }
+
+export default Navbar
 

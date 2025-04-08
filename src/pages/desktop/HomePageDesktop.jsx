@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/desktop/Navbar';
-import NoteCard from '../../components/desktop/NoteCard';
-import AddNoteButton from '../../components/desktop/AddNoteButton';
-import PageIndicator from '../../components/desktop/PageIndicator';
+import Navbar from '../../components/desktop/NavbarDesktop';
+import NoteCard from '../../components/NoteCard';
+import AddNoteButton from '../../components/desktop/AddNoteButtonDesktop';
+import PageIndicator from '../../components/PageIndicator';
 import { useNotes } from '../../contexts/NoteContext';
 
 function HomePage() {

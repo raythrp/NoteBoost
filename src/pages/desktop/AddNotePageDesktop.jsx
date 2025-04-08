@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { X, Upload } from 'react-feather';
-import Navbar from '../../components/desktop/Navbar';
+import Navbar from '../../components/desktop/NavbarDesktop';
 import Button from '../../components/Button';
-import Card from '../../components/desktop/Card';
+import Card from '../../components/Card';
 import Input from '../../components/Input';
 import Textarea from '../../components/Textarea';
 import { useNotes } from '../../contexts/NoteContext';

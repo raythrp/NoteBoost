@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
-import Logo from "../../components/desktop/Logo"
+import { useAuth } from "./../contexts/AuthContext"
+import Logo from "../components/icons/Logo"
 
 const InputData = () => {
   const navigate = useNavigate()
