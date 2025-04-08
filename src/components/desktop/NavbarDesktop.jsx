@@ -10,10 +10,10 @@ const Navbar = () => {
   return (
     <nav className="w-full h-[87px] bg-gray-100 border-b border-gray-200 backdrop-blur-sm sticky top-0 z-10">
       <div className="container flex items-center justify-between h-full px-6 mx-auto">
-        {/* Left: Logo + Name */}
+        {/* Left: Profile section */}
         <div className="flex items-center gap-2">
           <div className="w-[45px] h-[45px] bg-[#215273] rounded-full flex items-center justify-center">
-            <span className="text-xs font-semibold text-white">Logo</span>
+            <span className="text-xs font-semibold text-white">Profile</span>
           </div>
           <span className="text-[16px] font-semibold text-[#215273]">
             {displayName}
