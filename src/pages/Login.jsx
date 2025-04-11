@@ -26,7 +26,7 @@ const Login = () => {
 
     setLoading(true)
     try {
-      const result = await loginUser(email, password)
+      const result = await loginUser(email, password) 
       if (result.success) {
         navigate("/")
       } else {
@@ -150,3 +150,5 @@ const Login = () => {
 }
 
 export default Login
+
+// This code is a React component for a login page. It includes a form for users to enter their email and password, as well as a button to log in with Google. The component uses the `useAuth` context to handle authentication and displays error messages when login fails. The layout is styled using Tailwind CSS classes.
