@@ -9,6 +9,7 @@ import { useWindowSize } from "./hooks/useWindowSize";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import InputData from "./pages/InputData";
+import ForgotPassword from "./pages/ForgotPassword"
 
 // Mobile Pages
 import HomePageMobile from "./pages/mobile/HomePageMobile";
@@ -58,6 +59,9 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={isMobile ? <HomePageMobile /> : <HomePage />} />
+      <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
+      <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
       {/* Public-only */}
       <Route
         path="/login"
@@ -67,8 +71,6 @@ function App() {
         path="/signup"
         element={!user ? <Signup /> : <Navigate to={`/${userSlug}`} replace />}
       />
-
-      <Route path="/input-data" element={<InputData />} />
 
       {/* Upload (protected) */}
       <Route
@@ -119,6 +121,7 @@ function App() {
         path="*"
         element={<Navigate to={user ? `/${userSlug}` : "/login"} replace />}
       />
+
     </Routes>
   );
 }
