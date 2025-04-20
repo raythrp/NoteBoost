@@ -12,12 +12,15 @@ import { useWindowSize } from "./hooks/useWindowSize"
 import HomePageMobile from "./pages/mobile/HomePageMobile"
 import AddNotePageMobile from "./pages/mobile/AddNotePageMobile"
 import EditNotePageMobile from "./pages/mobile/EditNotePageMobile"
+import MenambahCatatanMobile from "./pages/mobile/MenambahCatatanMobile"
+import CatatanMobile from "./pages/mobile/CatatanMobile"
 import UploadPage from "./pages/mobile/UploadPage"
 
 // Desktop Pages
 import HomePage from "./pages/desktop/HomePageDesktop"
 import AddNotePage from "./pages/desktop/AddNotePageDesktop"
 import EditNotePage from "./pages/desktop/EditNotePageDesktop"
+import MenambahCatatan from "./pages/desktop/MenambahCatatan"
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
@@ -44,6 +47,7 @@ function App() {
   }
 
   return (
+    
     <Routes>
       <Route path="/" element={isMobile ? <HomePageMobile /> : <HomePage />} />
       <Route path="/add" element={isMobile ? <AddNotePageMobile /> : <AddNotePage />} />
@@ -52,6 +56,8 @@ function App() {
       <Route path="/login" element={isMobile ? <Login /> : <Login />} />
       <Route path="/signup" element={isMobile ? <Signup /> : <Signup />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
+      <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />
+      <Route path="/catatan" element={isMobile ? <CatatanMobile /> : <CatatanMobile />} />
     </Routes>
   )
 }
