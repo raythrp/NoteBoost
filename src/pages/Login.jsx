@@ -44,7 +44,7 @@ const Login = () => {
     setErrorMessage("")
     setSuccessMessage("")
     setLoading(true)
-
+  
     try {
       const result = await loginUser(email, password)
   
@@ -54,7 +54,8 @@ const Login = () => {
         if (result.needsAdditionalInfo) {
           navigate("/input-data", { replace: true })
         } else {
-          redirectToUserPage(result.displayName || email)
+          const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
+          navigate(`/${userSlug}`, { replace: true })
         }
       }
     } catch (err) {
@@ -71,12 +72,9 @@ const Login = () => {
     setLoading(true)
 
     const result = await loginWithGoogleUser()
-    setLoading(false)
-
-    if (!result.success) {
-      setErrorMessage(result.error)
-    } else {
-      redirectToUserPage(result.displayName || result.data?.nama)
+    if (result.success) {
+      const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
+      navigate(`/${userSlug}`, { replace: true })
     }
   }
 

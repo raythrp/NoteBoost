@@ -54,7 +54,7 @@ function App() {
     );
   }
 
-  const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-") || user?.email?.split("@")[0];
+  const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-");
 
   return (
     <Routes>
