@@ -1,58 +1,80 @@
 "use client"
 
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { useNavigate, useLocation, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import Separator from "../components/Separator"
 import { useAuth } from "../contexts/AuthContext"
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { loginUser, loginWithGoogleUser } = useAuth()
+  const params = new URLSearchParams(location.search)
+  const justSignedUp = params.get("verificationSent") === "true"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+
+  useEffect(() => {
+    if (justSignedUp) {
+      setSuccessMessage(
+        "Verifikasi email berhasil dikirim! Cek inbox Anda."
+      )
+    }
+  }, [justSignedUp])
+
+  useEffect(() => {
+    window.onerror = (msg, url, line, col, err) => {
+      console.error("Runtime Error:", msg, "at", url)
+      setErrorMessage("Terjadi kesalahan aplikasi.")
+    }
+  }, [])
+
+  const redirectToUserPage = (displayNameOrEmail) => {
+    const slug = displayNameOrEmail?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "") || "user"
+    navigate(`/${slug}`, { replace: true })
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setErrorMessage("")
-
-    if (password.length < 8) {
-      setErrorMessage("Password must be at least 8 characters.")
-      return
-    }
-
+    setSuccessMessage("")
     setLoading(true)
+  
     try {
-      const result = await loginUser(email, password) 
-      if (result.success) {
-        navigate("/")
+      const result = await loginUser(email, password)
+  
+      if (!result.success) {
+        setErrorMessage(result.error)
       } else {
-        setErrorMessage("Incorrect email or password.")
+        if (result.needsAdditionalInfo) {
+          navigate("/input-data", { replace: true })
+        } else {
+          const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
+          navigate(`/${userSlug}`, { replace: true })
+        }
       }
-    } catch (error) {
-      setErrorMessage("Login failed. Please try again.")
+    } catch (err) {
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.")
     } finally {
       setLoading(false)
     }
   }
 
+
   const handleGoogleLogin = async () => {
-    setLoading(true)
     setErrorMessage("")
-    try {
-      const result = await loginWithGoogleUser()
-      if (result.success) {
-        navigate("/")
-      } else {
-        setErrorMessage("Google login failed.")
-      }
-    } catch (error) {
-      setErrorMessage("Something went wrong with Google login.")
-    } finally {
-      setLoading(false)
+    setSuccessMessage("")
+    setLoading(true)
+
+    const result = await loginWithGoogleUser()
+    if (result.success) {
+      const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
+      navigate(`/${userSlug}`, { replace: true })
     }
   }
 

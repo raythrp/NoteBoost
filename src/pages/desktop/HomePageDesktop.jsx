@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../components/desktop/NavbarDesktop';
 import NoteCard from '../../components/NoteCard';
 import AddNoteButton from '../../components/desktop/AddNoteButtonDesktop';
 import PageIndicator from '../../components/PageIndicator';
 import { useNotes } from '../../contexts/NoteContext';
+import { useAuth } from "../../contexts/AuthContext"
+
+
 
 function HomePage() {
   const navigate = useNavigate();
   const { notes, deleteNote, loading } = useNotes();
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 12;
+  const { displayName } = useParams();
 
-  const totalPages = Math.ceil(notes.length / itemsPerPage);
+  const totalPages = Math.ceil((notes?.length || 0) / itemsPerPage);
+
+  const { logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/login";
+  };
 
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
@@ -35,6 +45,14 @@ function HomePage() {
   return (
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">
       <Navbar />
+      <div className="flex justify-end px-6 mt-2">
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+        >
+          Logout
+        </button>
+      </div>
 
       <div className="flex-1 w-full max-w-screen-xl px-4 py-6 mx-auto sm:px-6 lg:px-8">
         {loading ? (
