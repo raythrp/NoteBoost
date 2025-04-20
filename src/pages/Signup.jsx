@@ -8,7 +8,7 @@ import { useAuth } from "../contexts/AuthContext"
 
 const Signup = () => {
   const navigate = useNavigate()
-  const { signupUser, loginWithGoogleUser } = useAuth()
+  const { loginWithGoogleUser } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -25,44 +25,37 @@ const Signup = () => {
     return minLength && hasUpper && hasLower && hasNumber && hasSymbol
   }
 
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault()
     setError("")
-
-    if (!isPasswordStrong(password)) {
-      setError("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.")
+  
+    if (!email || !password) {
+      setError("Email & password wajib diisi.")
       return
     }
-
-    setLoading(true)
-    try {
-      const result = await signupUser(email, password)
-      if (result.success) {
-        navigate("/input-data")
-      } else {
-        setError(result.error || "Signup failed. Please try again.")
-      }
-    } catch (err) {
-      setError("An error occurred during signup.")
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+  
+    // simpan untuk InputData
+    localStorage.setItem(
+      "pendingSignUp",
+      JSON.stringify({ email, password })
+    )
+    navigate("/input-data")
   }
+  
 
   const handleGoogleSignup = async () => {
-    setError("")
     setLoading(true)
+    setError("")
     try {
-      const result = await loginWithGoogleUser()
-      if (result.success) {
+      const res = await loginWithGoogleUser()
+      if (res.needsAdditionalInfo) {
+        localStorage.setItem("pendingGoogle", res.email)
         navigate("/input-data")
       } else {
-        setError("Google signup failed.")
+        navigate("/")
       }
     } catch (err) {
-      setError("An error occurred during Google signup.")
-      console.error(err)
+      setError("Google sign‑up gagal. Coba lagi.")
     } finally {
       setLoading(false)
     }
@@ -167,3 +160,4 @@ const Signup = () => {
 }
 
 export default Signup
+
