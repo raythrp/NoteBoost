@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
-import Separator from "../components/Separator"
 import { useAuth } from "../contexts/AuthContext"
 
 const Login = () => {
@@ -62,10 +61,7 @@ const Login = () => {
         <Logo />
       </div>
 
-      <h1 className="text-[32px] font-bold text-center text-black mb-4">Welcome Back</h1>
-      <p className="text-[14px] text-gray-600 text-center mb-6">
-        Log in to access your account
-      </p>
+      <h1 className="text-[39px] font-bold text-center text-black mb-8 w-[352px]">Welcome</h1>
 
       {errorMessage && (
         <div className="w-full max-w-[352px] mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -73,13 +69,13 @@ const Login = () => {
         </div>
       )}
 
-      <form onSubmit={handleLogin} className="w-full max-w-[352px] flex flex-col gap-4">
+      <form onSubmit={handleLogin} className="w-full max-w-[352px] flex flex-col gap-6">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email Address"
-          className="border border-black/25 px-4 py-3 text-[16px] rounded"
+          className="border border-black/25 px-4 py-3 text-[20px] h-[52px]"
           required
         />
 
@@ -89,7 +85,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full border border-black/25 px-4 py-3 text-[16px] rounded pr-[60px]"
+            className="w-full border border-black/25 px-4 py-3 text-[20px] h-[52px] pr-[60px]"
             required
           />
           <button
@@ -104,28 +100,39 @@ const Login = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#128455] text-white py-3 rounded hover:bg-[#0f6a44] transition-colors"
+          className="bg-[#128455] text-white py-3 h-[52px] text-[20px] rounded-md shadow-md hover:bg-[#0f6a44] transition-colors"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      <div className="flex gap-2 mt-4 mb-6 text-sm text-gray-600">
+      {/* Forgot Password Link - Styled according to the design */}
+      <div className="w-full max-w-[352px] flex justify-center mt-6">
+        <Link to="/ForgotPassword" className="text-[13px] text-black hover:underline">
+          Forgot Password? Click Here
+        </Link>
+      </div>
+
+      <div className="flex gap-3 mt-4 mb-6 text-[13px] text-black w-[203px]">
         <span>Don't have an account?</span>
-        <Link to="/signup" className="text-black hover:underline">
+        <Link to="/signup" className="hover:underline">
           Sign up
         </Link>
       </div>
 
-      <Separator />
+      <div className="w-full max-w-[352px] flex items-center my-6 relative">
+        <div className="flex-1 border-t border-[#3A3A3B]"></div>
+        <span className="px-4 text-[16px] text-[#3A3A3B]">OR</span>
+        <div className="flex-1 border-t border-[#3A3A3B]"></div>
+      </div>
 
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="flex items-center justify-center gap-3 border border-black/20 px-4 py-3 rounded mt-6 w-full max-w-[352px] hover:bg-gray-50 transition"
+        className="flex items-center justify-center gap-3 border border-black/20 px-4 py-3 rounded mt-2 w-full max-w-[352px] h-[52px] hover:bg-gray-50 transition"
       >
         {/* Google SVG Logo */}
-        <svg className="w-5 h-5" viewBox="0 0 533.5 544.3">
+        <svg className="w-6 h-6" viewBox="0 0 533.5 544.3">
           <path
             fill="#4285f4"
             d="M533.5 278.4c0-17.4-1.6-34-4.6-50.2H272v95.1h147.1c-6.4 34.5-25.1 63.7-53.6 83.2v68h86.5c50.5-46.5 81.5-115.1 81.5-196.1z"
@@ -143,12 +150,10 @@ const Login = () => {
             d="M272 107.7c39.6-.6 77.8 13.9 107.2 40.9l80.2-80.2C411.7 25.3 344.1-1.1 272 0 168.9 0 76.7 60.1 31.8 149.2l87.7 70.5C141 155.6 201.1 107.7 272 107.7z"
           />
         </svg>
-        <span className="text-sm font-medium text-black">Continue with Google</span>
+        <span className="text-[16px] text-[#3A3A3B]">Continue with Google</span>
       </button>
     </div>
   )
 }
 
 export default Login
-
-// This code is a React component for a login page. It includes a form for users to enter their email and password, as well as a button to log in with Google. The component uses the `useAuth` context to handle authentication and displays error messages when login fails. The layout is styled using Tailwind CSS classes.

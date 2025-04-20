@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 import Login from "./pages/Login"
+import ForgotPassword from "./pages/ForgotPassword"
 import Signup from "./pages/Signup"
 import InputData from "./pages/InputData"
 import { useAuth } from "./contexts/AuthContext"
@@ -50,6 +51,7 @@ function App() {
       <Route path="/edit/:id" element={isMobile ? <EditNotePageMobile /> : <EditNotePage />} />
       <Route path="/upload" element={isMobile ? <UploadPage /> : <Navigate to="/add?upload=true" />} />
       <Route path="/login" element={isMobile ? <Login /> : <Login />} />
+      <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/signup" element={isMobile ? <Signup /> : <Signup />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
     </Routes>
