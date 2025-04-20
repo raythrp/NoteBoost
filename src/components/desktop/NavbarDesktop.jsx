@@ -1,63 +1,86 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Settings } from "react-feather";
-import { useAuth } from "../../contexts/AuthContext"
+import React, { useState, useEffect } from "react";
+import { Settings, FileText } from "react-feather"; // Import ikon tambahan
+import SettingsSidebar from "../SettingsSidebar";
 
 const Navbar = () => {
-  const { user } = useAuth();
-  const displayName = user?.name || "Cacing Pintar";
+  const [username, setUsername] = useState(
+    localStorage.getItem("username") || "Cacing Pintar"
+  );
+  const [profilePicture, setProfilePicture] = useState(
+    localStorage.getItem("profilePicture") || "/profile.jpg"
+  );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSaveSettings = (newUsername, newProfilePicture) => {
+    // Simpan perubahan ke localStorage
+    localStorage.setItem("username", newUsername);
+    localStorage.setItem("profilePicture", newProfilePicture);
+
+    // Update state
+    setUsername(newUsername);
+    setProfilePicture(newProfilePicture);
+
+    // Tutup sidebar
+    setIsSidebarOpen(false);
+  };
+
+  useEffect(() => {
+    // Ambil data dari localStorage saat komponen dimuat
+    const savedUsername = localStorage.getItem("username");
+    const savedProfilePicture = localStorage.getItem("profilePicture");
+
+    if (savedUsername) setUsername(savedUsername);
+    if (savedProfilePicture) setProfilePicture(savedProfilePicture);
+  }, []);
 
   return (
-    <nav className="w-full h-[87px] bg-gray-100 border-b border-gray-200 backdrop-blur-sm sticky top-0 z-10">
-      <div className="container flex items-center justify-between h-full px-6 mx-auto">
-        {/* Left: Profile section */}
-        <div className="flex items-center gap-2">
-          <div className="w-[45px] h-[45px] bg-[#215273] rounded-full flex items-center justify-center">
-            <span className="text-xs font-semibold text-white">Profile</span>
-          </div>
-          <span className="text-[16px] font-semibold text-[#215273]">
-            {displayName}
-          </span>
-        </div>
-
-        {/* Middle: Home */}
-        <div className="flex items-center gap-2">
-          <div className="w-[45px] h-[45px] bg-white shadow-md rounded-md flex items-center justify-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z"
-                stroke="#215273"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+    <>
+      <nav className="w-full h-[87px] bg-gray-100 border-b border-gray-200 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container flex items-center justify-between h-full px-6 mx-auto">
+          {/* Bagian Kiri: Profil */}
+          <div className="flex items-center gap-2">
+            <div className="w-[45px] h-[45px] bg-[#215273] rounded-full flex items-center justify-center overflow-hidden">
+              <img
+                src={profilePicture}
+                alt="Profile"
+                className="w-full h-full object-cover"
               />
-              <path
-                d="M7 7H17M7 11H17M7 15H13"
-                stroke="#215273"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            </div>
+            <span className="text-[16px] font-semibold text-[#215273]">
+              {username}
+            </span>
           </div>
-          <Link to="/homepage" className="text-2xl font-bold text-[#215273]">
-            Home
-          </Link>
-        </div>
 
-        {/* Right: Settings */}
-        <div className="flex items-center gap-2 cursor-pointer">
-          <Settings className="w-6 h-6 text-[#215273]" />
-          <span className="text-[#215273] font-semibold">Settings</span>
+          {/* Bagian Tengah: Home */}
+          <div className="flex items-center gap-2">
+            <FileText className="w-6 h-6 text-[#215273]" />
+            <span className="text-[18px] font-bold text-[#215273]">Home</span>
+          </div>
+
+          {/* Bagian Kanan: Settings */}
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={toggleSidebar}
+          >
+            <Settings className="w-6 h-6 text-[#215273]" />
+            <span className="text-[#215273] font-semibold">Settings</span>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {isSidebarOpen && (
+        <SettingsSidebar
+          onClose={toggleSidebar}
+          onSave={handleSaveSettings}
+          initialUsername={username}
+          initialProfilePicture={profilePicture}
+        />
+      )}
+    </>
   );
 };
 

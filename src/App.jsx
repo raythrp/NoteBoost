@@ -12,15 +12,20 @@ import InputData from "./pages/InputData";
 import ForgotPassword from "./pages/ForgotPassword"
 
 // Mobile Pages
-import HomePageMobile from "./pages/mobile/HomePageMobile";
-import AddNotePageMobile from "./pages/mobile/AddNotePageMobile";
-import EditNotePageMobile from "./pages/mobile/EditNotePageMobile";
-import UploadPage from "./pages/mobile/UploadPage";
+import HomePageMobile from "./pages/mobile/HomePageMobile"
+import AddNotePageMobile from "./pages/mobile/AddNotePageMobile"
+import EditNotePageMobile from "./pages/mobile/EditNotePageMobile"
+import MenambahCatatanMobile from "./pages/mobile/MenambahCatatanMobile"
+import CatatanMobile from "./pages/mobile/CatatanMobile"
+import UploadPage from "./pages/mobile/UploadPage"
 
 // Desktop Pages
-import HomePage from "./pages/desktop/HomePageDesktop";
-import AddNotePage from "./pages/desktop/AddNotePageDesktop";
-import EditNotePage from "./pages/desktop/EditNotePageDesktop";
+import HomePage from "./pages/desktop/HomePageDesktop"
+import AddNotePage from "./pages/desktop/AddNotePageDesktop"
+import EditNotePage from "./pages/desktop/EditNotePageDesktop"
+import MenambahCatatan from "./pages/desktop/MenambahCatatan"
+
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,10 +63,13 @@ function App() {
   const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-");
 
   return (
+    
     <Routes>
       <Route path="/" element={isMobile ? <HomePageMobile /> : <HomePage />} />
       <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
+      <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />
+      <Route path="/catatan" element={isMobile ? <CatatanMobile /> : <CatatanMobile />} />
       {/* Public-only */}
       <Route
         path="/login"
@@ -121,7 +129,6 @@ function App() {
         path="*"
         element={<Navigate to={user ? `/${userSlug}` : "/login"} replace />}
       />
-
     </Routes>
   );
 }
