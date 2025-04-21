@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import { useAuth } from "../contexts/AuthContext"
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 // import { auth } from "../firebase";
 
 const Login = () => {
@@ -47,36 +47,86 @@ const Login = () => {
     setErrorMessage("");
     setSuccessMessage("");
     setLoading(true);
-  
-    try {
-      const result = await loginUser(email, password);
-  
-      if (!result.success) {
-        setErrorMessage(result.error);
-      } else {
-        // Assuming result contains the user data, update the user context
-        setUser(result.user);  // Set user here
-  
-        localStorage.setItem("user", JSON.stringify(result.user)); // Save to localStorage
-  
-        if (result.needsAdditionalInfo) {
+
+    if (email && password) {
+      // Login with email/password
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        const user = userCredential.user
+
+        if (!user.emailVerified) {
+          await signOut(auth)
+          setErrorMessage("Email belum diverifikasi. Silakan cek inbox.")
+          return;
+        }
+
+        const idToken = await user.getIdToken()
+        localStorage.setItem("token", idToken)
+
+        const res = await axios.post("/api/auth/login", { idToken })
+        const fullUser = {
+          email: res.data.email,
+          name: user.displayName || res.data.nama || "Cacing Pintar",
+          jenjang: res.data.jenjang || "Tidak Tersedia",
+        }
+
+        setUser(fullUser)  // Set user in context
+        localStorage.setItem("user", JSON.stringify(fullUser))
+
+        if (res.data.needsAdditionalInfo) {
           navigate("/input-data", { replace: true });
         } else {
-          const userSlug = result.user?.name?.toLowerCase().replace(/\s+/g, "-");
+          const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
           if (userSlug) {
             navigate(`/${userSlug}`, { replace: true });
           } else {
             navigate("/");
           }
         }
-      }
-    } catch (err) {
-      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      } catch (err) {
+        let msg = "Terjadi kesalahan. Silakan coba lagi."
+        const code = err.code || err?.response?.data?.error
 
+        if (code === "auth/user-not-found") msg = "Akun tidak ditemukan."
+        else if (code === "auth/wrong-password") msg = "Password salah."
+        else if (code === "auth/invalid-credential") msg = "Email atau password salah."
+        else if (typeof code === "string") msg = code
+
+        setErrorMessage(msg)
+      }
+    } else {
+      // Login with Google
+      try {
+        const result = await signInWithPopup(auth, provider)
+        const user = result.user
+
+        const idToken = await user.getIdToken()
+        localStorage.setItem("token", idToken)
+
+        const res = await axios.post("/api/auth/login", { idToken })
+        const fullUser = {
+          email: res.data.email,
+          name: user.displayName || res.data.nama || "Cacing Pintar",
+          jenjang: res.data.jenjang || "Tidak Tersedia",
+        }
+
+        setUser(fullUser)  // Set user in context
+        localStorage.setItem("user", JSON.stringify(fullUser))
+
+        if (!fullUser.jenjang) {
+          navigate("/input-data-google", { replace: true });
+        } else {
+          const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+          navigate(`/${userSlug}`, { replace: true });
+        }
+      } catch (err) {
+        setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+        console.error("Error:", err);
+      }
+    }
+
+    setLoading(false);
+  };
 
   const handleGoogleLogin = async () => {
     setErrorMessage("");
