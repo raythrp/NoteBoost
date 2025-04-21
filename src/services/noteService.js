@@ -105,6 +105,47 @@ const deleteNote = async (id) => {
     }
 };
 
+const uploadImageAndSaveNote = async (file, title, kelas, mata_pelajaran, topik) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post(`${BASE_URL}/image/extract-and-save`, formData, getAuthHeaders());
+
+        if (response.status === 200) {
+            const extractedText = response.data.extractedText;
+
+            const body = {
+                tanggal_waktu: new Date().toISOString(),
+                kelas: kelas || "",
+                mata_pelajaran: mata_pelajaran || "",
+                topik: title,
+                isi_catatan_asli: extractedText,
+            };
+
+            // Simpan catatan ke backend setelah teks berhasil diekstraksi
+            const saveNoteResponse = await axios.post(`${BASE_URL}/history`, body, getAuthHeaders());
+
+            if (saveNoteResponse.status === 201) {
+                return {
+                    id: saveNoteResponse.data.id,
+                    title,
+                    content: extractedText,
+                };
+            } else {
+                console.error("Gagal menyimpan catatan:", saveNoteResponse);
+                return null;
+            }
+        } else {
+            console.error("Gagal mengekstrak teks:", response);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error saat mengunggah gambar dan menyimpan catatan:", error);
+        return null;
+    }
+};
+
 // Reset
 const resetNotes = () => {
     notes = [...initialNotes];
@@ -118,5 +159,6 @@ export {
     addNote,
     updateNote,
     deleteNote,
-    resetNotes
+    resetNotes,
+    uploadImageAndSaveNote,
 };

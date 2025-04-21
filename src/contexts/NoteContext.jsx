@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getNotes, addNote, updateNote, deleteNote } from "../services/noteService";
+import { getNotes, addNote, updateNote, deleteNote,uploadImageAndSaveNote } from "../services/noteService";
 
 const NoteContext = createContext();
 
@@ -37,6 +37,17 @@ export function NoteProvider({ children }) {
         return success;
     };
 
+    const handleUploadImageAndSaveNote = async (file, title, kelas, mata_pelajaran, topik) => {
+        try {
+            const newNote = await uploadImageAndSaveNote(file, title, kelas, mata_pelajaran, topik);
+            setNotes(await getNotes());  // Ensure notes are reloaded after the note is added
+            return newNote;
+        } catch (error) {
+            console.error("Error uploading and saving note:", error);
+            return null;
+        }
+    };
+
     return (
         <NoteContext.Provider
             value={{
@@ -45,6 +56,7 @@ export function NoteProvider({ children }) {
                 addNote: handleAddNote,
                 updateNote: handleUpdateNote,
                 deleteNote: handleDeleteNote,
+                uploadImageAndSaveNote: handleUploadImageAndSaveNote,
             }}
         >
             {children}
