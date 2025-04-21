@@ -1,118 +1,69 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "./../contexts/AuthContext"
-import Logo from "../components/icons/Logo"
-import { registerUser } from "../utils/authService";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./../contexts/AuthContext";
+import Logo from "../components/icons/Logo";
+import { updateUserProfile } from "../utils/authService"; // Untuk update profil di server
 
-const InputData = () => {
-  const navigate = useNavigate()
-  const [name, setName] = useState("")
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [education, setEducation] = useState("")
-  const { updateUserProfile } = useAuth()
-  const [isGoogle, setIsGoogle] = useState(false)
-  const [pending, setPending] = useState(null)
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const educationOptions = ["SMP", "SMA"]
-  
+const InputDataGoogle = () => {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [education, setEducation] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const educationOptions = ["SMP", "SMA"];
+
   useEffect(() => {
-    const pSign = localStorage.getItem("pendingSignUp")
-    const pGoogle = localStorage.getItem("pendingGoogle")
-
-    if (pSign) {
-      setPending(JSON.parse(pSign))
-    } else if (pGoogle) {
-      setPending({ email: pGoogle })
-      setIsGoogle(true)
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.name) {
+      setName(user.name); // Ambil nama dari localStorage jika ada
     } else {
-      navigate("/signup")
+      navigate("/signup"); // Jika tidak ada user, arahkan ke signup
     }
-  }, [navigate])
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    console.log("Submitting Data:", { name, education, isGoogle, pending })
-
-    if (!name.trim() || !education) {
-      setError("Nama & jenjang wajib diisi.")
-      return
+    e.preventDefault();
+    setError("");
+    if (!education) {
+      setError("Jenjang pendidikan harus diisi.");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      if (isGoogle) {
-        // Google flow: update profile in context
-        updateUserProfile({ nama: name, jenjang: education })
-        localStorage.removeItem("pendingGoogle")
-        navigate("/")         // immediately go home
-      } else {
-        // Email/password: register via backend
-        const { email, password } = pending
-        const res = await registerUser({
-          email,
-          password,
-          nama: name,
-          jenjang: education,
-        })
-
-        if (res.success) {
-          localStorage.removeItem("pendingSignUp")
-          navigate("/login?verificationSent=true")
-        } else {
-          setError(res.error)
-        }
-      }
+      // Update profile menggunakan data yang sudah diisi
+      await updateUserProfile({ nama: name, jenjang: education });
+      localStorage.setItem("user", JSON.stringify({ ...user, jenjang: education }));
+      navigate("/"); // Arahkan ke halaman home setelah mengisi jenjang
     } catch (err) {
-      console.error(err)
-      setError("Terjadi kesalahan, silakan coba lagi.")
+      console.error(err);
+      setError("Terjadi kesalahan, silakan coba lagi.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-2xl">
-        {/* Logo */}
         <div className="flex justify-center mb-4">
           <Logo className="w-[95px] h-[95px]" />
         </div>
 
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-center mb-6">DATA DIRI</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Isi Data Pengguna</h1>
 
-        {/* Error Banner */}
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block mb-1 font-semibold">Nama Lengkap</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Input Nama"
-              required
-              className="w-full px-4 py-2 border rounded"
-            />
-          </div>
 
-          {/* Education */}
           <div className="relative">
-            <label className="block mb-1 font-semibold">
-              Jenjang Pendidikan
-            </label>
+            <label className="block mb-1 font-semibold">Jenjang Pendidikan</label>
             <div
               className="relative px-4 py-2 border rounded cursor-pointer"
               onClick={() => setShowDropdown(!showDropdown)}
@@ -138,8 +89,8 @@ const InputData = () => {
                       key={opt}
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={() => {
-                        setEducation(opt)
-                        setShowDropdown(false)
+                        setEducation(opt);
+                        setShowDropdown(false);
                       }}
                     >
                       {opt}
@@ -150,7 +101,6 @@ const InputData = () => {
             </div>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -161,7 +111,7 @@ const InputData = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default InputDataGoogle
+export default InputDataGoogle;

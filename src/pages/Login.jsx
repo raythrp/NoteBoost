@@ -1,14 +1,16 @@
 "use client"
-
+import axios from "axios";
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import { useAuth } from "../contexts/AuthContext"
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+// import { auth } from "../firebase";
 
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loginUser, loginWithGoogleUser } = useAuth()
+  const { loginUser, user, setUser } = useAuth();
   const params = new URLSearchParams(location.search)
   const justSignedUp = params.get("verificationSent") === "true"
   const [email, setEmail] = useState("")
@@ -17,6 +19,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
 
   useEffect(() => {
     if (justSignedUp) {
@@ -39,43 +43,75 @@ const Login = () => {
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setErrorMessage("")
-    setSuccessMessage("")
-    setLoading(true)
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
   
     try {
-      const result = await loginUser(email, password)
+      const result = await loginUser(email, password);
   
       if (!result.success) {
-        setErrorMessage(result.error)
+        setErrorMessage(result.error);
       } else {
+        // Assuming result contains the user data, update the user context
+        setUser(result.user);  // Set user here
+  
+        localStorage.setItem("user", JSON.stringify(result.user)); // Save to localStorage
+  
         if (result.needsAdditionalInfo) {
-          navigate("/input-data", { replace: true })
+          navigate("/input-data", { replace: true });
         } else {
-          const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
-          navigate(`/${userSlug}`, { replace: true })
+          const userSlug = result.user?.name?.toLowerCase().replace(/\s+/g, "-");
+          if (userSlug) {
+            navigate(`/${userSlug}`, { replace: true });
+          } else {
+            navigate("/");
+          }
         }
       }
     } catch (err) {
-      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.")
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
 
   const handleGoogleLogin = async () => {
-    setErrorMessage("")
-    setSuccessMessage("")
-    setLoading(true)
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-    const result = await loginWithGoogleUser()
-    if (result.success) {
-      const userSlug = user?.name?.toLowerCase().replace(/\s+/g, "-")
-      navigate(`/${userSlug}`, { replace: true })
+      const idToken = await user.getIdToken();
+      localStorage.setItem("token", idToken);
+
+      const res = await axios.post("/api/auth/login", { idToken });
+      const fullUser = {
+        email: res.data.email,
+        name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang || "Tidak Tersedia", 
+      };
+
+      setUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      if (!fullUser.jenjang) {
+        navigate("/input-data-google", { replace: true });
+      } else {
+        const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+        navigate(`/${userSlug}`, { replace: true });
+      }
+    } catch (err) {
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-screen px-4 bg-white">

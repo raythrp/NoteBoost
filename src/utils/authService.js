@@ -22,6 +22,15 @@ axios.defaults.baseURL =
     }
   };
 
+  export const updateUserProfile = async (userData) => {
+    try {
+      const response = await axios.post("/api/auth/updateProfile", userData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   export const loginUser = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -47,7 +56,7 @@ axios.defaults.baseURL =
     }
   }
 
-  export const loginWithGoogleUser = async () => { // Not Working yet
+  export const loginWithGoogleUser = async () => { 
     try {
       const result = await signInWithPopup(auth, provider)
       const user = result.user
@@ -66,4 +75,6 @@ axios.defaults.baseURL =
           "Google login gagal. Silakan coba lagi.",
       }
     }
+
 };
+
