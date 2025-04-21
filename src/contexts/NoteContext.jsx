@@ -4,54 +4,58 @@ import { getNotes, addNote, updateNote, deleteNote } from "../services/noteServi
 const NoteContext = createContext();
 
 export function NoteProvider({ children }) {
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadedNotes = getNotes();
-    setNotes(loadedNotes);
-    setLoading(false);
-  }, []);
+    useEffect(() => {
+        const loadNotes = async () => {
+            const loadedNotes = await getNotes();
+            setNotes(loadedNotes);
+            setLoading(false);
+        };
 
-  const handleAddNote = (title, content) => {
-    const newNote = addNote(title, content);
-    setNotes(getNotes());
-    return newNote;
-  };
+        loadNotes();
+    }, []);
 
-  const handleUpdateNote = (id, title, content) => {
-    const updatedNote = updateNote(id, title, content);
-    setNotes(getNotes());
-    return updatedNote;
-  };
+    const handleAddNote = (title, content) => {
+        const newNote = addNote(title, content);
+        setNotes(getNotes());
+        return newNote;
+    };
 
-  const handleDeleteNote = (id) => {
-    const success = deleteNote(id);
-    if (success) {
-      setNotes(getNotes());
-    }
-    return success;
-  };
+    const handleUpdateNote = (id, title, content) => {
+        const updatedNote = updateNote(id, title, content);
+        setNotes(getNotes());
+        return updatedNote;
+    };
 
-  return (
-    <NoteContext.Provider
-      value={{
-        notes,
-        loading,
-        addNote: handleAddNote,
-        updateNote: handleUpdateNote,
-        deleteNote: handleDeleteNote,
-      }}
-    >
-      {children}
-    </NoteContext.Provider>
-  );
+    const handleDeleteNote = (id) => {
+        const success = deleteNote(id);
+        if (success) {
+            setNotes(getNotes());
+        }
+        return success;
+    };
+
+    return (
+        <NoteContext.Provider
+            value={{
+                notes,
+                loading,
+                addNote: handleAddNote,
+                updateNote: handleUpdateNote,
+                deleteNote: handleDeleteNote,
+            }}
+        >
+            {children}
+        </NoteContext.Provider>
+    );
 }
 
 export function useNotes() {
-  const context = useContext(NoteContext);
-  if (context === undefined) {
-    throw new Error("useNotes must be used within a NoteProvider");
-  }
-  return context;
+    const context = useContext(NoteContext);
+    if (context === undefined) {
+        throw new Error("useNotes must be used within a NoteProvider");
+    }
+    return context;
 }
