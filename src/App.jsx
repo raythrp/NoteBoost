@@ -65,7 +65,16 @@ function App() {
   return (
     
     <Routes>
-      <Route path="/" element={isMobile ? <HomePageMobile /> : <HomePage />} />
+       <Route
+        path="/"
+        element={
+          user
+            ? isMobile
+              ? <HomePageMobile />
+              : <HomePage />
+            : <Navigate to="/login" replace />  // Jika tidak login, arahkan ke login
+        }
+      />
       <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
       <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />

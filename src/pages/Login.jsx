@@ -85,6 +85,13 @@ const Login = () => {
 
       <h1 className="text-[39px] font-bold text-center text-black mb-8 w-[352px]">Welcome</h1>
 
+      {/* Display success message if available */}
+      {successMessage && (
+        <div className="w-full max-w-[352px] mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+          {successMessage}
+        </div>
+      )}
+
       {errorMessage && (
         <div className="w-full max-w-[352px] mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {errorMessage}

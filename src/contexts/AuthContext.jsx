@@ -1,7 +1,7 @@
 "use client"
 import axios from "axios";
 import { createContext, useState, useContext, useEffect } from "react"
-import { login, signup, loginWithGoogle } from "../services/authService"
+import { loginUser, registerUser, loginWithGoogleUser } from "../utils/authService"
 import {
   signInWithEmailAndPassword,
   signOut
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogleUser = async () => {
     setLoading(true)
     try {
-      const result = await loginWithGoogle()
+      const result = await loginWithGoogleUser()
   
       if (result.success) {
         setUser({ email: result.email, name: result.nama || "User"  })
