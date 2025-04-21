@@ -26,10 +26,12 @@ function HomePage() {
     setCurrentPage(page)
   }
 
-  const paginatedNotes = notes
-    .slice()
-    .reverse()
-    .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const paginatedNotes = Array.isArray(notes)
+  ? notes
+      .slice()
+      .reverse()
+      .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+  : [];
   
   return (
     <main className="min-h-screen blue-gradient-bg">
@@ -47,6 +49,7 @@ function HomePage() {
                 key={note.id} 
                 id={note.id} 
                 title={note.title} 
+                content={note.content}
                 onEdit={handleEdit} 
                 onDelete={handleDelete} />
             ))}

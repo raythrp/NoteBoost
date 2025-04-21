@@ -37,10 +37,12 @@ function HomePage() {
   };
 
   // Balik urutan notes agar yang terbaru tampil dulu
-  const paginatedNotes = notes
-    .slice()
-    .reverse()
-    .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const paginatedNotes = Array.isArray(notes)
+  ? notes
+      .slice()
+      .reverse()
+      .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+  : [];
 
   return (
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">

@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   
       const idToken = await user.getIdToken()
       localStorage.setItem("token", idToken)
-  
+      
       const res = await axios.post("/api/auth/login", { idToken })
       const fullUser = {
         email: res.data.email,
