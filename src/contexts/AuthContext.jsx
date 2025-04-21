@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogleUser = async () => {
     setLoading(true)
     try {
-      const result = await loginWithGoogleUser()
+      const result = await loginWithGoogle()
   
       if (result.success) {
         setUser({ email: result.email, name: result.nama || "User"  })
@@ -106,6 +106,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         loginUser,
         signupUser,
