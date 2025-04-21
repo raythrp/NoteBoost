@@ -5,13 +5,18 @@ import { useNavigate } from "react-router-dom"
 import { X, Upload } from "react-feather"
 import Input from "./Input"
 import { useNotes } from "../contexts/NoteContext"
+import { uploadImageAndSaveNote } from '../../services/noteService';
+
 
 function UploadModal({ onClose }) {
   const navigate = useNavigate()
   const { addNote } = useNotes()
+  const { uploadImageAndSaveNote } = useNotes();
   const [uploadedFile, setUploadedFile] = useState(null)
   const [title, setTitle] = useState("")
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault()
@@ -31,20 +36,26 @@ function UploadModal({ onClose }) {
   }
 
   const handleUploadComplete = async () => {
+    console.log("error");
     if (uploadedFile) {
+      console.log("error");
+      setLoading(true);
+      setError(null);
+
       try {
-        setUploading(true)
-        // In a real app, you would upload the file to a server here
-        // For now, we'll just create a note with the file name
-        await addNote(title || uploadedFile.name, `Uploaded file: ${uploadedFile.name}`)
-        navigate("/")
-      } catch (error) {
-        console.error("Error uploading file:", error)
+        const note = await uploadImageAndSaveNote(uploadedFile, title, "", "", "");
+        if (note) {
+          navigate('/catatan');
+        } else {
+          setError("Failed to extract text or save the note.");
+        }
+      } catch (err) {
+        setError("An error occurred while processing the image.");
       } finally {
-        setUploading(false)
+        setLoading(false);
       }
     } else {
-      onClose()
+      onClose();
     }
   }
 
@@ -82,10 +93,14 @@ function UploadModal({ onClose }) {
               </div>
               <button
                 className="bg-[#215273] text-white w-full h-[52px] text-xl rounded-md"
-                onClick={handleUploadComplete}
-                disabled={uploading}
+                // onClick={handleUploadComplete}
+                onClick={() => {
+                  console.error("Clicked upload button");
+                  handleUploadComplete();
+                }}
+                disabled={loading}
               >
-                {uploading ? "Saving..." : "Save"}
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           ) : (
