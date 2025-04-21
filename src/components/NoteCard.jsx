@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MoreHorizontal } from 'react-feather';
 
-function NoteCard({ id, title, onDelete }) {
+function NoteCard({ id, title, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false);
 
   const toggleMenu = () => {
@@ -13,7 +13,7 @@ function NoteCard({ id, title, onDelete }) {
       <div className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2">
         {/* Card content would go here */}
       </div>
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex justify-between items-center mt-2">
         <h3 className="text-base font-normal text-black">{title}</h3>
         <div className="relative">
           <button className="p-1" onClick={toggleMenu} aria-label="More options">
@@ -23,7 +23,17 @@ function NoteCard({ id, title, onDelete }) {
           {showMenu && (
             <div className="absolute right-0 mt-1 bg-[#215273] rounded-lg shadow-lg z-10 flex">
               <button 
-                className="flex items-center p-2 text-white"
+                className="p-2 text-white flex items-center"
+                onClick={() => {
+                  onEdit(id);
+                  setShowMenu(false);
+                }}
+              >
+                <span>EDIT</span>
+              </button>
+              <div className="w-px bg-white/30"></div>
+              <button 
+                className="p-2 text-white flex items-center"
                 onClick={() => {
                   onDelete(id);
                   setShowMenu(false);
