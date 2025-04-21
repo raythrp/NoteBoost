@@ -37,8 +37,8 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post("/api/auth/login", { idToken })
       const fullUser = {
         email: res.data.email,
-        uid: user.uid,
         name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang || "Tidak Tersedia",
       };
       setUser(fullUser);
       localStorage.setItem("user", JSON.stringify(fullUser));
