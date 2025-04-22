@@ -1,20 +1,25 @@
 "use client"
-
+import axios from "axios";
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import Separator from "../components/Separator"
 import { useAuth } from "../contexts/AuthContext"
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 
 const Signup = () => {
   const navigate = useNavigate()
   const { loginWithGoogleUser } = useAuth()
-
+  const { loginUser, user, setUser } = useAuth();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
 
   const isPasswordStrong = (pwd) => {
     const minLength = pwd.length >= 8
@@ -44,20 +49,37 @@ const Signup = () => {
   
 
   const handleGoogleSignup = async () => {
-    setLoading(true)
-    setError("")
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
     try {
-      const res = await loginWithGoogleUser()
-      if (res.needsAdditionalInfo) {
-        localStorage.setItem("pendingGoogle", res.email)
-        navigate("/input-data")
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const idToken = await user.getIdToken();
+      localStorage.setItem("token", idToken);
+
+      const res = await axios.post("/api/auth/login", { idToken });
+      const fullUser = {
+        email: res.data.email,
+        name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang, 
+      };
+
+      setUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      if (!fullUser.jenjang) {
+        navigate("/input-data-google", { replace: true });
       } else {
-        navigate("/")
+        const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+        navigate(`/${userSlug}`, { replace: true });
       }
     } catch (err) {
-      setError("Google sign‑up gagal. Coba lagi.")
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      console.error("Error:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

@@ -32,7 +32,7 @@ export default function SettingsSidebar({
   };
 
   const handleSave = () => {
-    onSave(username, profilePicture, educationLevel);
+    onSave(educationLevel);
     setIsEditing(false);
     setIsEditingName(false);
     onClose(); // Tutup sidebar setelah menyimpan

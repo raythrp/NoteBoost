@@ -7,6 +7,8 @@ import {
   signOut
 } from "firebase/auth";
 import { auth } from "../firebase"; 
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const AuthContext = createContext()
 
@@ -114,11 +116,32 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const updateUserProfile = (userData) => {
-    const updatedUser = { ...user, ...userData }
-    setUser(updatedUser)
-    localStorage.setItem("user", JSON.stringify(updatedUser))
-  }
+  const updateUserProfile = async (userData) => {
+    try {
+      // Ambil user yang ada di localStorage untuk memudahkan
+      const user = JSON.parse(localStorage.getItem("user"));
+      
+      // Pastikan user ada
+      if (user && user.email) {
+        // Ambil referensi ke dokumen user di Firestore berdasarkan email
+        const userRef = doc(db, "users", user.email);
+  
+        // Perbarui data user di Firestore
+        await updateDoc(userRef, {
+          ...userData,  // Menyebarkan data baru yang ingin diperbarui
+        });
+  
+        // Update user di localStorage
+        const updatedUser = { ...user, ...userData };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+  
+        // Update state user di aplikasi
+        setUser(updatedUser);
+      }
+    } catch (err) {
+      console.error("Error updating user profile:", err);
+    }
+  };
 
   const logout = () => {
     setUser(null)
