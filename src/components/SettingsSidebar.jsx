@@ -1,15 +1,20 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext"; 
+import axios from "axios";
 export default function SettingsSidebar({
   onClose,
   onSave,
   initialUsername,
   initialProfilePicture,
 }) {
-  const { user } = useAuth(); 
+  const { user, setUser } = useAuth(); 
   const { logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [error, setError] = useState("")
   const handleLogout = () => {
     logout();
     window.location.href = "/login";
@@ -31,11 +36,35 @@ export default function SettingsSidebar({
     }
   };
 
-  const handleSave = () => {
-    onSave(educationLevel);
-    setIsEditing(false);
-    setIsEditingName(false);
-    onClose(); // Tutup sidebar setelah menyimpan
+  const handleSave = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await axios.post(
+        "/api/auth/update-jenjang",
+        { email: user.email, jenjang: educationLevel },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+          },
+        }
+      );
+
+      if (res.data.message === "Jenjang berhasil diperbarui") {
+        const updatedUser = { ...user, jenjang: educationLevel };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setIsEditing(false);
+        setIsEditingName(false);
+        onClose();
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan, silakan coba lagi.");
+      console.error("Error updating jenjang:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
