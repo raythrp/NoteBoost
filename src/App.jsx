@@ -77,6 +77,7 @@ function App() {
             : <Navigate to="/login" replace />  // Jika tidak login, arahkan ke login
         }
       />
+      
       {/* <Route path="/email-forgotPassword" element={isMobile ? <EmailForgotPassword /> : <EmailForgotPassword />} /> */}
       {/* <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} /> */}
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
