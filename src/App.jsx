@@ -8,6 +8,7 @@ import { useWindowSize } from "./hooks/useWindowSize";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import InputData from "./pages/InputData";
+
 import EmailForgotPassword from "./pages/EmailForgotPassword"
 import ForgotPassword from "./pages/ForgotPassword"
 import InputDataGoogle from "./pages/InputDataGoogle";

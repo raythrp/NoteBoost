@@ -1,7 +1,12 @@
 "use client"
-
+import axios from "axios";
 import { createContext, useState, useContext, useEffect } from "react"
-import { login, signup, loginWithGoogle } from "../services/authService"
+import { loginUser, registerUser, loginWithGoogleUser } from "../utils/authService"
+import {
+  signInWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
+import { auth } from "../firebase"; 
 
 const AuthContext = createContext()
 
@@ -10,26 +15,71 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
+    const storedUser = localStorage.getItem("user");
+  
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      try {
+        const parsedUser = JSON.parse(storedUser);
+  
+        // Ensure the parsed data has all necessary fields
+        if (parsedUser && parsedUser.email && parsedUser.name) {
+          console.log("User loaded from localStorage:", parsedUser);
+          setUser(parsedUser);
+        } else {
+          console.error("Parsed user data is invalid or incomplete:", parsedUser);
+          localStorage.removeItem("user");  // Remove invalid data
+          setUser(null);  // Reset user state
+        }
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage:", error);
+        localStorage.removeItem("user");  // Clear corrupted data
+        setUser(null);  // Reset user state
+      }
+    } else {
+      setUser(null);  // If there's no user data in localStorage, reset state
     }
-    setLoading(false)
-  }, [])
+  
+    setLoading(false);  // End loading after the check
+  }, []);
+  
+
 
   const loginUser = async (email, password) => {
     try {
-      const response = await login(email, password)
-      if (response.success) {
-        setUser(response.user)
-        localStorage.setItem("user", JSON.stringify(response.user))
-        return { success: true }
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+  
+      if (!user.emailVerified) {
+        await signOut(auth)
+        return { success: false, error: "Email belum diverifikasi. Silakan cek inbox." }
       }
-      return { success: false, error: "Invalid credentials" }
-    } catch (error) {
-      return { success: false, error: error.message }
+  
+      const idToken = await user.getIdToken()
+      localStorage.setItem("token", idToken)
+      
+      const res = await axios.post("/api/auth/login", { idToken })
+      const fullUser = {
+        email: res.data.email,
+        name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang || "Tidak Tersedia",
+      };
+      setUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      return { success: true, needsAdditionalInfo: res.data.needsAdditionalInfo };
+    } catch (err) {
+      let msg = "Terjadi kesalahan. Silakan coba lagi.";
+      const code = err.code || err?.response?.data?.error;
+  
+      if (code === "auth/user-not-found") msg = "Akun tidak ditemukan.";
+      else if (code === "auth/wrong-password") msg = "Password salah.";
+      else if (code === "auth/invalid-credential") msg = "Email atau password salah.";
+      else if (typeof code === "string") msg = code;
+  
+      return { success: false, error: msg };
     }
   }
+  
 
   const signupUser = async (email) => {
     try {
@@ -46,16 +96,21 @@ export const AuthProvider = ({ children }) => {
   }
 
   const loginWithGoogleUser = async () => {
+    setLoading(true)
     try {
-      const response = await loginWithGoogle()
-      if (response.success) {
-        setUser(response.user)
-        localStorage.setItem("user", JSON.stringify(response.user))
-        return { success: true }
+      const result = await loginWithGoogle()
+  
+      if (result.success) {
+        setUser({ email: result.email, name: result.nama || "User"  })
+        localStorage.setItem("user", JSON.stringify({ email: result.email }))
+        return { success: true, needsAdditionalInfo: result.needsAdditionalInfo }
+      } else {
+        return { success: false, error: result.error || "Google login failed" }
       }
-      return { success: false, error: "Google login failed" }
     } catch (error) {
       return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -74,6 +129,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         loginUser,
         signupUser,

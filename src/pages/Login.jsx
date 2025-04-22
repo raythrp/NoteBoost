@@ -1,60 +1,167 @@
 "use client"
-
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import axios from "axios";
+import { useState, useEffect } from "react"
+import { useNavigate, useLocation, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
-import Separator from "../components/Separator"
 import { useAuth } from "../contexts/AuthContext"
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+// import { auth } from "../firebase";
 
 const Login = () => {
   const navigate = useNavigate()
-  const { loginUser, loginWithGoogleUser } = useAuth()
+  const location = useLocation()
+  const { loginUser, user, setUser } = useAuth();
+  const params = new URLSearchParams(location.search)
+  const justSignedUp = params.get("verificationSent") === "true"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+
+  useEffect(() => {
+    if (justSignedUp) {
+      setSuccessMessage(
+        "Verifikasi email berhasil dikirim! Cek inbox Anda."
+      )
+    }
+  }, [justSignedUp])
+
+  useEffect(() => {
+    window.onerror = (msg, url, line, col, err) => {
+      console.error("Runtime Error:", msg, "at", url)
+      setErrorMessage("Terjadi kesalahan aplikasi.")
+    }
+  }, [])
+
+  const redirectToUserPage = (displayNameOrEmail) => {
+    const slug = displayNameOrEmail?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "") || "user"
+    navigate(`/${slug}`, { replace: true })
+  }
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setErrorMessage("")
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
 
-    if (password.length < 8) {
-      setErrorMessage("Password must be at least 8 characters.")
-      return
-    }
+    if (email && password) {
+      // Login with email/password
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        const user = userCredential.user
 
-    setLoading(true)
-    try {
-      const result = await loginUser(email, password) 
-      if (result.success) {
-        navigate("/")
-      } else {
-        setErrorMessage("Incorrect email or password.")
+        if (!user.emailVerified) {
+          await signOut(auth)
+          setErrorMessage("Email belum diverifikasi. Silakan cek inbox.")
+          return;
+        }
+
+        const idToken = await user.getIdToken()
+        localStorage.setItem("token", idToken)
+
+        const res = await axios.post("/api/auth/login", { idToken })
+        const fullUser = {
+          email: res.data.email,
+          name: user.displayName || res.data.nama || "Cacing Pintar",
+          jenjang: res.data.jenjang || "Tidak Tersedia",
+        }
+
+        setUser(fullUser)  // Set user in context
+        localStorage.setItem("user", JSON.stringify(fullUser))
+
+        if (res.data.needsAdditionalInfo) {
+          navigate("/input-data", { replace: true });
+        } else {
+          const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+          if (userSlug) {
+            navigate(`/${userSlug}`, { replace: true });
+          } else {
+            navigate("/");
+          }
+        }
+      } catch (err) {
+        let msg = "Terjadi kesalahan. Silakan coba lagi."
+        const code = err.code || err?.response?.data?.error
+
+        if (code === "auth/user-not-found") msg = "Akun tidak ditemukan."
+        else if (code === "auth/wrong-password") msg = "Password salah."
+        else if (code === "auth/invalid-credential") msg = "Email atau password salah."
+        else if (typeof code === "string") msg = code
+
+        setErrorMessage(msg)
       }
-    } catch (error) {
-      setErrorMessage("Login failed. Please try again.")
-    } finally {
-      setLoading(false)
+    } else {
+      // Login with Google
+      try {
+        const result = await signInWithPopup(auth, provider)
+        const user = result.user
+
+        const idToken = await user.getIdToken()
+        localStorage.setItem("token", idToken)
+
+        const res = await axios.post("/api/auth/login", { idToken })
+        const fullUser = {
+          email: res.data.email,
+          name: user.displayName || res.data.nama || "Cacing Pintar",
+          jenjang: res.data.jenjang || "Tidak Tersedia",
+        }
+
+        setUser(fullUser)  // Set user in context
+        localStorage.setItem("user", JSON.stringify(fullUser))
+
+        if (!fullUser.jenjang) {
+          navigate("/input-data-google", { replace: true });
+        } else {
+          const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+          navigate(`/${userSlug}`, { replace: true });
+        }
+      } catch (err) {
+        setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+        console.error("Error:", err);
+      }
     }
-  }
+
+    setLoading(false);
+  };
 
   const handleGoogleLogin = async () => {
-    setLoading(true)
-    setErrorMessage("")
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
     try {
-      const result = await loginWithGoogleUser()
-      if (result.success) {
-        navigate("/")
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const idToken = await user.getIdToken();
+      localStorage.setItem("token", idToken);
+
+      const res = await axios.post("/api/auth/login", { idToken });
+      const fullUser = {
+        email: res.data.email,
+        name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang || "Tidak Tersedia", 
+      };
+
+      setUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      if (!fullUser.jenjang) {
+        navigate("/input-data-google", { replace: true });
       } else {
-        setErrorMessage("Google login failed.")
+        const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+        navigate(`/${userSlug}`, { replace: true });
       }
-    } catch (error) {
-      setErrorMessage("Something went wrong with Google login.")
+    } catch (err) {
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      console.error("Error:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-screen px-4 bg-white">
@@ -62,10 +169,14 @@ const Login = () => {
         <Logo />
       </div>
 
-      <h1 className="text-[32px] font-bold text-center text-black mb-4">Welcome Back</h1>
-      <p className="text-[14px] text-gray-600 text-center mb-6">
-        Log in to access your account
-      </p>
+      <h1 className="text-[39px] font-bold text-center text-black mb-8 w-[352px]">Welcome</h1>
+
+      {/* Display success message if available */}
+      {successMessage && (
+        <div className="w-full max-w-[352px] mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+          {successMessage}
+        </div>
+      )}
 
       {errorMessage && (
         <div className="w-full max-w-[352px] mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -73,13 +184,13 @@ const Login = () => {
         </div>
       )}
 
-      <form onSubmit={handleLogin} className="w-full max-w-[352px] flex flex-col gap-4">
+      <form onSubmit={handleLogin} className="w-full max-w-[352px] flex flex-col gap-6">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email Address"
-          className="border border-black/25 px-4 py-3 text-[16px] rounded"
+          className="border border-black/25 px-4 py-3 text-[20px] h-[52px]"
           required
         />
 
@@ -89,7 +200,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full border border-black/25 px-4 py-3 text-[16px] rounded pr-[60px]"
+            className="w-full border border-black/25 px-4 py-3 text-[20px] h-[52px] pr-[60px]"
             required
           />
           <button
@@ -104,28 +215,39 @@ const Login = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#128455] text-white py-3 rounded hover:bg-[#0f6a44] transition-colors"
+          className="bg-[#128455] text-white py-3 h-[52px] text-[20px] rounded-md shadow-md hover:bg-[#0f6a44] transition-colors"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      <div className="flex gap-2 mt-4 mb-6 text-sm text-gray-600">
+      {/* Forgot Password Link - Styled according to the design */}
+      <div className="w-full max-w-[352px] flex justify-center mt-6">
+        <Link to="/ForgotPassword" className="text-[13px] text-black hover:underline">
+          Forgot Password? Click Here
+        </Link>
+      </div>
+
+      <div className="flex gap-3 mt-4 mb-6 text-[13px] text-black w-[203px]">
         <span>Don't have an account?</span>
-        <Link to="/signup" className="text-black hover:underline">
+        <Link to="/signup" className="hover:underline">
           Sign up
         </Link>
       </div>
 
-      <Separator />
+      <div className="w-full max-w-[352px] flex items-center my-6 relative">
+        <div className="flex-1 border-t border-[#3A3A3B]"></div>
+        <span className="px-4 text-[16px] text-[#3A3A3B]">OR</span>
+        <div className="flex-1 border-t border-[#3A3A3B]"></div>
+      </div>
 
       <button
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="flex items-center justify-center gap-3 border border-black/20 px-4 py-3 rounded mt-6 w-full max-w-[352px] hover:bg-gray-50 transition"
+        className="flex items-center justify-center gap-3 border border-black/20 px-4 py-3 rounded mt-2 w-full max-w-[352px] h-[52px] hover:bg-gray-50 transition"
       >
         {/* Google SVG Logo */}
-        <svg className="w-5 h-5" viewBox="0 0 533.5 544.3">
+        <svg className="w-6 h-6" viewBox="0 0 533.5 544.3">
           <path
             fill="#4285f4"
             d="M533.5 278.4c0-17.4-1.6-34-4.6-50.2H272v95.1h147.1c-6.4 34.5-25.1 63.7-53.6 83.2v68h86.5c50.5-46.5 81.5-115.1 81.5-196.1z"
@@ -143,12 +265,10 @@ const Login = () => {
             d="M272 107.7c39.6-.6 77.8 13.9 107.2 40.9l80.2-80.2C411.7 25.3 344.1-1.1 272 0 168.9 0 76.7 60.1 31.8 149.2l87.7 70.5C141 155.6 201.1 107.7 272 107.7z"
           />
         </svg>
-        <span className="text-sm font-medium text-black">Continue with Google</span>
+        <span className="text-[16px] text-[#3A3A3B]">Continue with Google</span>
       </button>
     </div>
   )
 }
 
 export default Login
-
-// This code is a React component for a login page. It includes a form for users to enter their email and password, as well as a button to log in with Google. The component uses the `useAuth` context to handle authentication and displays error messages when login fails. The layout is styled using Tailwind CSS classes.
