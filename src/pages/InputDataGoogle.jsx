@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./../contexts/AuthContext";
@@ -8,11 +8,13 @@ import { updateUserProfile } from "../utils/authService"; // Untuk update profil
 
 const InputDataGoogle = () => {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();  
   const [name, setName] = useState("");
   const [education, setEducation] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const educationOptions = ["SMP", "SMA"];
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -33,10 +35,22 @@ const InputDataGoogle = () => {
 
     setLoading(true);
     try {
-      // Update profile menggunakan data yang sudah diisi
-      await updateUserProfile({ nama: name, jenjang: education });
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "/api/auth/update-jenjang", 
+        { email: user.email, jenjang: education },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       localStorage.setItem("user", JSON.stringify({ ...user, jenjang: education }));
-      navigate("/"); // Arahkan ke halaman home setelah mengisi jenjang
+      setUser({ ...user, jenjang: education });
+      if (res.data.message === "Jenjang berhasil diperbarui") {
+        const userSlug = user.name?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, "");
+        navigate(`/${userSlug || user.email}`, { replace: true });
+      }
     } catch (err) {
       console.error(err);
       setError("Terjadi kesalahan, silakan coba lagi.");

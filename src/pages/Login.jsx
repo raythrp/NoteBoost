@@ -107,13 +107,13 @@ const Login = () => {
         const fullUser = {
           email: res.data.email,
           name: user.displayName || res.data.nama || "Cacing Pintar",
-          jenjang: res.data.jenjang || "Tidak Tersedia",
+          jenjang: res.data.jenjang,
         }
 
         setUser(fullUser)  // Set user in context
         localStorage.setItem("user", JSON.stringify(fullUser))
 
-        if (!fullUser.jenjang) {
+        if (fullUser.jenjang === null) {
           navigate("/input-data-google", { replace: true });
         } else {
           const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
@@ -143,7 +143,7 @@ const Login = () => {
       const fullUser = {
         email: res.data.email,
         name: user.displayName || res.data.nama || "Cacing Pintar",
-        jenjang: res.data.jenjang || "Tidak Tersedia", 
+        jenjang: res.data.jenjang, 
       };
 
       setUser(fullUser);
