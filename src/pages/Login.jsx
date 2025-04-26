@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import { useAuth } from "../contexts/AuthContext"
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
-// import { auth } from "../firebase";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import ForgotPassword from "./ForgotPassword"
 
 const Login = () => {
   const navigate = useNavigate()
@@ -19,13 +19,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
 
   useEffect(() => {
     if (justSignedUp) {
       setSuccessMessage(
-        "Verifikasi email berhasil dikirim! Cek inbox Anda."
+        "Email verification sent! Please check your inbox."
       )
     }
   }, [justSignedUp])
@@ -33,7 +34,7 @@ const Login = () => {
   useEffect(() => {
     window.onerror = (msg, url, line, col, err) => {
       console.error("Runtime Error:", msg, "at", url)
-      setErrorMessage("Terjadi kesalahan aplikasi.")
+      setErrorMessage("An application error occurred.")
     }
   }, [])
 
@@ -56,7 +57,7 @@ const Login = () => {
 
         if (!user.emailVerified) {
           await signOut(auth)
-          setErrorMessage("Email belum diverifikasi. Silakan cek inbox.")
+          setErrorMessage("Email not verified. Please check your inbox.")
           return;
         }
 
@@ -66,8 +67,8 @@ const Login = () => {
         const res = await axios.post("/api/auth/login", { idToken })
         const fullUser = {
           email: res.data.email,
-          name: user.displayName || res.data.nama || "Cacing Pintar",
-          jenjang: res.data.jenjang || "Tidak Tersedia",
+          name: user.displayName || res.data.nama || "Smart User",
+          jenjang: res.data.jenjang || "Not Available",
         }
 
         setUser(fullUser)  // Set user in context
@@ -84,12 +85,12 @@ const Login = () => {
           }
         }
       } catch (err) {
-        let msg = "Terjadi kesalahan. Silakan coba lagi."
+        let msg = "An error occurred. Please try again."
         const code = err.code || err?.response?.data?.error
 
-        if (code === "auth/user-not-found") msg = "Akun tidak ditemukan."
-        else if (code === "auth/wrong-password") msg = "Password salah."
-        else if (code === "auth/invalid-credential") msg = "Email atau password salah."
+        if (code === "auth/user-not-found") msg = "Account not found."
+        else if (code === "auth/wrong-password") msg = "Incorrect password."
+        else if (code === "auth/invalid-credential") msg = "Invalid email or password."
         else if (typeof code === "string") msg = code
 
         setErrorMessage(msg)
@@ -106,7 +107,7 @@ const Login = () => {
         const res = await axios.post("/api/auth/login", { idToken })
         const fullUser = {
           email: res.data.email,
-          name: user.displayName || res.data.nama || "Cacing Pintar",
+          name: user.displayName || res.data.nama || "Smart User",
           jenjang: res.data.jenjang,
         }
 
@@ -120,7 +121,7 @@ const Login = () => {
           navigate(`/${userSlug}`, { replace: true });
         }
       } catch (err) {
-        setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+        setErrorMessage("Error. Try Again.");
         console.error("Error:", err);
       }
     }
@@ -142,7 +143,7 @@ const Login = () => {
       const res = await axios.post("/api/auth/login", { idToken });
       const fullUser = {
         email: res.data.email,
-        name: user.displayName || res.data.nama || "Cacing Pintar",
+        name: user.displayName || res.data.nama || "Smart User",
         jenjang: res.data.jenjang, 
       };
 
@@ -156,11 +157,20 @@ const Login = () => {
         navigate(`/${userSlug}`, { replace: true });
       }
     } catch (err) {
-      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      setErrorMessage("An error occurred. Please try again.");
       console.error("Error:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const openForgotPasswordModal = (e) => {
+    e.preventDefault();
+    setShowForgotPasswordModal(true);
+  };
+
+  const closeForgotPasswordModal = () => {
+    setShowForgotPasswordModal(false);
   };
 
   return (
@@ -221,11 +231,14 @@ const Login = () => {
         </button>
       </form>
 
-      {/* Forgot Password Link - Styled according to the design */}
+      {/* Forgot Password - Changed to button that opens modal */}
       <div className="w-full max-w-[352px] flex justify-center mt-6">
-        <Link to="/ForgotPassword" className="text-[13px] text-black hover:underline">
+        <button 
+          onClick={openForgotPasswordModal} 
+          className="text-[13px] text-black hover:underline cursor-pointer"
+        >
           Forgot Password? Click Here
-        </Link>
+        </button>
       </div>
 
       <div className="flex gap-3 mt-4 mb-6 text-[13px] text-black w-[203px]">
@@ -267,6 +280,9 @@ const Login = () => {
         </svg>
         <span className="text-[16px] text-[#3A3A3B]">Continue with Google</span>
       </button>
+      
+      {/* Render the ForgotPassword modal when state is true */}
+      {showForgotPasswordModal && <ForgotPassword onClose={closeForgotPasswordModal} email={email} />}
     </div>
   )
 }
