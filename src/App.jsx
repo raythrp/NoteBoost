@@ -9,8 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import InputData from "./pages/InputData";
 
-// import EmailForgotPassword from "./pages/EmailForgotPassword"
-// import ForgotPassword from "./pages/ForgotPassword"
+import ForgotPassword from "./pages/ForgotPassword"
 import InputDataGoogle from "./pages/InputDataGoogle";
 
 // Mobile Pages
@@ -78,8 +77,7 @@ function App() {
         }
       />
       
-      {/* <Route path="/email-forgotPassword" element={isMobile ? <EmailForgotPassword /> : <EmailForgotPassword />} /> */}
-      {/* <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} /> */}
+      <Route path="/Forgot-Password" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
       <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />
       <Route path="/catatan" element={isMobile ? <CatatanMobile /> : <CatatanMobile />} />
