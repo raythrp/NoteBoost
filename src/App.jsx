@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { useWindowSize } from "./hooks/useWindowSize";
-
 // Public Pages
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import InputData from "./pages/InputData";
+
 import ForgotPassword from "./pages/ForgotPassword"
+import InputDataGoogle from "./pages/InputDataGoogle";
 
 // Mobile Pages
 import HomePageMobile from "./pages/mobile/HomePageMobile"
@@ -65,11 +66,22 @@ function App() {
   return (
     
     <Routes>
-      <Route path="/" element={isMobile ? <HomePageMobile /> : <HomePage />} />
-      <Route path="/forgotPassword" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
+       <Route
+        path="/"
+        element={
+          user
+            ? isMobile
+              ? <HomePageMobile />
+              : <HomePage />
+            : <Navigate to="/login" replace />  // Jika tidak login, arahkan ke login
+        }
+      />
+      
+      <Route path="/Forgot-Password" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
       <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />
       <Route path="/catatan" element={isMobile ? <CatatanMobile /> : <CatatanMobile />} />
+      <Route path="/input-data-google" element={<InputDataGoogle />} />
       {/* Public-only */}
       <Route
         path="/login"

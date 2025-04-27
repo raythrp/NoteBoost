@@ -18,12 +18,6 @@ function HomePage() {
 
   const totalPages = Math.ceil((notes?.length || 0) / itemsPerPage);
 
-  const { logout } = useAuth();
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/login";
-  };
-
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
   };
@@ -47,14 +41,6 @@ function HomePage() {
   return (
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">
       <Navbar />
-      <div className="flex justify-end px-6 mt-2">
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-        >
-          Logout
-        </button>
-      </div>
 
       <div className="flex-1 w-full max-w-screen-xl px-4 py-6 mx-auto sm:px-6 lg:px-8">
         {loading ? (

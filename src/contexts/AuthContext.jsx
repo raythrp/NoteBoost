@@ -1,12 +1,14 @@
 "use client"
 import axios from "axios";
 import { createContext, useState, useContext, useEffect } from "react"
-import { login, signup, loginWithGoogle } from "../services/authService"
+import { loginUser, registerUser, loginWithGoogleUser } from "../utils/authService"
 import {
   signInWithEmailAndPassword,
   signOut
 } from "firebase/auth";
 import { auth } from "../firebase"; 
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const AuthContext = createContext()
 
@@ -15,10 +17,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
-    setLoading(false);
+    const storedUser = localStorage.getItem("user");
+  
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+  
+        // Ensure the parsed data has all necessary fields
+        if (parsedUser && parsedUser.email && parsedUser.name) {
+          console.log("User loaded from localStorage:", parsedUser);
+          setUser(parsedUser);
+        } else {
+          console.error("Parsed user data is invalid or incomplete:", parsedUser);
+          localStorage.removeItem("user");  // Remove invalid data
+          setUser(null);  // Reset user state
+        }
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage:", error);
+        localStorage.removeItem("user");  // Clear corrupted data
+        setUser(null);  // Reset user state
+      }
+    } else {
+      setUser(null);  // If there's no user data in localStorage, reset state
+    }
+  
+    setLoading(false);  // End loading after the check
   }, []);
+  
 
 
   const loginUser = async (email, password) => {
@@ -37,8 +62,8 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post("/api/auth/login", { idToken })
       const fullUser = {
         email: res.data.email,
-        uid: user.uid,
         name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang || "Tidak Tersedia",
       };
       setUser(fullUser);
       localStorage.setItem("user", JSON.stringify(fullUser));
@@ -91,11 +116,32 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const updateUserProfile = (userData) => {
-    const updatedUser = { ...user, ...userData }
-    setUser(updatedUser)
-    localStorage.setItem("user", JSON.stringify(updatedUser))
-  }
+  const updateUserProfile = async (userData) => {
+    try {
+      // Ambil user yang ada di localStorage untuk memudahkan
+      const user = JSON.parse(localStorage.getItem("user"));
+      
+      // Pastikan user ada
+      if (user && user.email) {
+        // Ambil referensi ke dokumen user di Firestore berdasarkan email
+        const userRef = doc(db, "users", user.email);
+  
+        // Perbarui data user di Firestore
+        await updateDoc(userRef, {
+          ...userData,  // Menyebarkan data baru yang ingin diperbarui
+        });
+  
+        // Update user di localStorage
+        const updatedUser = { ...user, ...userData };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+  
+        // Update state user di aplikasi
+        setUser(updatedUser);
+      }
+    } catch (err) {
+      console.error("Error updating user profile:", err);
+    }
+  };
 
   const logout = () => {
     setUser(null)
@@ -106,6 +152,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         loginUser,
         signupUser,

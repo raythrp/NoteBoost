@@ -1,17 +1,29 @@
 import React, { useState } from "react";
-
+import { useAuth } from "../contexts/AuthContext"; 
+import axios from "axios";
 export default function SettingsSidebar({
   onClose,
   onSave,
   initialUsername,
   initialProfilePicture,
 }) {
-  const [username, setUsername] = useState(initialUsername || "Cacing Pintar");
+  const { user, setUser } = useAuth(); 
+  const { logout } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [error, setError] = useState("")
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/login";
+  };
+  const [username, setUsername] = useState(user?.name || "Cacing Pintar");
   const [profilePicture, setProfilePicture] = useState(
     initialProfilePicture || "/profile.jpg"
   );
-  const [educationLevel, setEducationLevel] = useState("SMA");
-  const [classLevel, setClassLevel] = useState("11");
+  const [educationLevel, setEducationLevel] = useState(user?.jenjang || "Tidak Tersedia");
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
@@ -24,9 +36,35 @@ export default function SettingsSidebar({
     }
   };
 
-  const handleSave = () => {
-    onSave(username, profilePicture, educationLevel, classLevel);
-    onClose(); // Tutup sidebar setelah menyimpan
+  const handleSave = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await axios.post(
+        "/api/auth/update-jenjang",
+        { email: user.email, jenjang: educationLevel },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+          },
+        }
+      );
+
+      if (res.data.message === "Jenjang berhasil diperbarui") {
+        const updatedUser = { ...user, jenjang: educationLevel };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setIsEditing(false);
+        setIsEditingName(false);
+        onClose();
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan, silakan coba lagi.");
+      console.error("Error updating jenjang:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,50 +105,39 @@ export default function SettingsSidebar({
               />
             </div>
 
-            {/* Username */}
-            <div className="flex justify-between w-full items-center">
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Edit Username"
-                className="w-full text-black p-2 rounded"
-              />
+            {/* Username - Read Only */}
+            <div className="flex justify-between w-all text-center">
+              <p className="text-white text-center text-lg font-bold">{user?.name || "Cacing Pintar"}</p>
             </div>
 
             {/* Email */}
             <p className="text-sm underline break-all text-center">
-              CacingPintar97@gmail.com
+              {user?.email || "Email Tidak Tersedia"}
             </p>
 
-            {/* Dropdown - Jenjang Pendidikan */}
+            {/* Jenjang Pendidikan */}
             <div className="w-full">
-              <label className="block text-sm mb-1">Jenjang Pendidikan</label>
-              <select
-                className="w-full text-black p-2 rounded"
-                value={educationLevel}
-                onChange={(e) => setEducationLevel(e.target.value)}
+              <label className="block text-lg font-bold mb-2 text-center">Jenjang Pendidikan</label>
+              {isEditing ? (
+                // Display dropdown when editing
+                <select
+                  className="w-full text-black p-2 rounded"
+                  value={educationLevel}
+                  onChange={(e) => setEducationLevel(e.target.value)}
+                >
+                  <option>SMP</option>
+                  <option>SMA</option>
+                </select>
+              ) : (
+                // Display text when not editing
+                <p className="text-white text-center">{educationLevel}</p>
+              )}
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="text-blue-300 mt-2"
               >
-                <option>SD</option>
-                <option>SMP</option>
-                <option>SMA</option>
-              </select>
-            </div>
-
-            {/* Dropdown - Kelas */}
-            <div className="w-full">
-              <label className="block text-sm mb-1">Kelas</label>
-              <select
-                className="w-full text-black p-2 rounded"
-                value={classLevel}
-                onChange={(e) => setClassLevel(e.target.value)}
-              >
-                {[7, 8, 9, 10, 11, 12].map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
+                {isEditing ? "Cancel Edit" : "Edit"}
+              </button>
             </div>
 
             {/* Save Button */}
@@ -126,7 +153,9 @@ export default function SettingsSidebar({
               <a href="#" className="text-sm underline">
                 Reset Password
               </a>
-              <button className="bg-white text-blue-900 px-4 py-1 rounded hover:bg-gray-100">
+              <button 
+              onClick={handleLogout}
+              className="bg-white text-blue-900 px-4 py-1 rounded hover:bg-gray-100">
                 Log Out
               </button>
             </div>

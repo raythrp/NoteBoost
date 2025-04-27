@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Settings, FileText } from "react-feather"; // Import ikon tambahan
 import SettingsSidebar from "../SettingsSidebar";
+import { useAuth } from "../../contexts/AuthContext"; 
 
 const Navbar = () => {
-  const [username, setUsername] = useState(
-    localStorage.getItem("username") || "Cacing Pintar"
+  const { user } = useAuth(); 
+  const [username, setUsername] = useState(user?.name || "Cacing Pintar"
   );
   const [profilePicture, setProfilePicture] = useState(
     localStorage.getItem("profilePicture") || "/profile.jpg"
