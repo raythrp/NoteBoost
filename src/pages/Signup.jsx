@@ -1,20 +1,25 @@
 "use client"
-
+import axios from "axios";
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import Logo from "../components/icons/Logo"
 import Separator from "../components/Separator"
 import { useAuth } from "../contexts/AuthContext"
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 
 const Signup = () => {
   const navigate = useNavigate()
-  const { signupUser, loginWithGoogleUser } = useAuth()
-
+  const { loginWithGoogleUser } = useAuth()
+  const { loginUser, user, setUser } = useAuth();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
 
   const isPasswordStrong = (pwd) => {
     const minLength = pwd.length >= 8
@@ -25,46 +30,56 @@ const Signup = () => {
     return minLength && hasUpper && hasLower && hasNumber && hasSymbol
   }
 
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault()
     setError("")
-
-    if (!isPasswordStrong(password)) {
-      setError("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.")
+  
+    if (!email || !password) {
+      setError("Email & password wajib diisi.")
       return
     }
-
-    setLoading(true)
-    try {
-      const result = await signupUser(email, password)
-      if (result.success) {
-        navigate("/input-data")
-      } else {
-        setError(result.error || "Signup failed. Please try again.")
-      }
-    } catch (err) {
-      setError("An error occurred during signup.")
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+  
+    // simpan untuk InputData
+    localStorage.setItem(
+      "pendingSignUp",
+      JSON.stringify({ email, password })
+    )
+    navigate("/input-data")
   }
+  
 
   const handleGoogleSignup = async () => {
-    setError("")
-    setLoading(true)
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true);
     try {
-      const result = await loginWithGoogleUser()
-      if (result.success) {
-        navigate("/input-data")
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const idToken = await user.getIdToken();
+      localStorage.setItem("token", idToken);
+
+      const res = await axios.post("/api/auth/login", { idToken });
+      const fullUser = {
+        email: res.data.email,
+        name: user.displayName || res.data.nama || "Cacing Pintar",
+        jenjang: res.data.jenjang, 
+      };
+
+      setUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      if (!fullUser.jenjang) {
+        navigate("/input-data-google", { replace: true });
       } else {
-        setError("Google signup failed.")
+        const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+        navigate(`/${userSlug}`, { replace: true });
       }
     } catch (err) {
-      setError("An error occurred during Google signup.")
-      console.error(err)
+      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      console.error("Error:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

@@ -12,4 +12,20 @@ export default defineConfig({
       plugins: [tailwind()],
     },
   },
+  server: {
+    host: "localhost",
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      "/api/auth": {
+        target: "https://noteboost-serve-772262781875.asia-southeast2.run.app",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/auth/, "/api/auth"),
+      },
+      "/api": {
+        target: "https://noteboost-serve-772262781875.asia-southeast2.run.app",
+        changeOrigin: true,
+      },
+    },
+  },
 });

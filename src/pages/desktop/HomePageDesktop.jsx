@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../../components/desktop/NavbarDesktop';
 import NoteCard from '../../components/NoteCard';
 import AddNoteButton from '../../components/desktop/AddNoteButtonDesktop';
 import PageIndicator from '../../components/PageIndicator';
 import { useNotes } from '../../contexts/NoteContext';
+import { useAuth } from "../../contexts/AuthContext"
+
+
 
 function HomePage() {
   const navigate = useNavigate();
   const { notes, deleteNote, loading } = useNotes();
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 12;
+  const { displayName } = useParams();
 
-  const totalPages = Math.ceil(notes.length / itemsPerPage);
+  const totalPages = Math.ceil((notes?.length || 0) / itemsPerPage);
 
   const handleEdit = (id) => {
     navigate(`/edit/${id}`);
@@ -27,10 +31,12 @@ function HomePage() {
   };
 
   // Balik urutan notes agar yang terbaru tampil dulu
-  const paginatedNotes = notes
-    .slice()
-    .reverse()
-    .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const paginatedNotes = Array.isArray(notes)
+  ? notes
+      .slice()
+      .reverse()
+      .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+  : [];
 
   return (
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">
