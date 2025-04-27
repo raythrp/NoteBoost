@@ -7,6 +7,7 @@ import Card from '../../components/Card';
 import Input from '../../components/Input';
 import Textarea from '../../components/Textarea';
 import { useNotes } from '../../contexts/NoteContext';
+import { uploadImageAndSaveNote } from '../../services/noteService';
 
 function AddNotePage() {
   const navigate = useNavigate();
@@ -99,6 +100,8 @@ function UploadModal({ onClose }) {
   const { addNote } = useNotes();
   const [uploadedFile, setUploadedFile] = useState(null);
   const [title, setTitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -118,11 +121,34 @@ function UploadModal({ onClose }) {
   };
 
   const handleUploadComplete = async () => {
-    if (uploadedFile) {
-      await addNote(title || uploadedFile.name, `Uploaded file: ${uploadedFile.name}`);
-      navigate('/');
-    } else {
-      onClose();
+    // if (uploadedFile) {
+    //   await addNote(title || uploadedFile.name, `Uploaded file: ${uploadedFile.name}`);
+    //   navigate('/');
+    // } else {
+    //   onClose();
+    // }
+    if (!uploadedFile) {
+      setError('No file selected.');
+      return;
+    }
+  
+  
+    try {
+      // Call the uploadImageAndSaveNote function passing necessary parameters
+      const note = await uploadImageAndSaveNote(uploadedFile, title, "", "", "");
+  
+      // If note is successfully saved, navigate to catatan page
+      if (note) {
+        console.log(`[${new Date().toLocaleTimeString()}] Note berhasil disimpan:`, note);
+        navigate('/catatan');  // Navigate to the notes page if saved successfully
+      } else {
+        setError('Failed to extract text or save the note.');
+      }
+    } catch (err) {
+      console.error('Error during image upload and note save:', err);
+      setError('An error occurred while processing the image.');
+    } finally {
+      setLoading(false);
     }
   };
 
