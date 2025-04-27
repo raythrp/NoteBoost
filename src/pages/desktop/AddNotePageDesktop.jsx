@@ -8,6 +8,8 @@ import Input from '../../components/Input';
 import Textarea from '../../components/Textarea';
 import { useNotes } from '../../contexts/NoteContext';
 import { uploadImageAndSaveNote } from '../../services/noteService';
+import { useAuth } from "../../contexts/AuthContext";
+
 
 function AddNotePage() {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ function AddNotePage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const { user } = useAuth();
 
   // Check if we should show the upload modal immediately
   useEffect(() => {
@@ -27,7 +30,12 @@ function AddNotePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await addNote(title, content);
-    navigate('/');
+    const userSlug = user?.name.toLowerCase().replace(/\s+/g, "-");
+    if (userSlug) {
+      navigate(`/${userSlug}`, { replace: true });
+    } else {
+      navigate('/');
+    }
   };
 
   return (
