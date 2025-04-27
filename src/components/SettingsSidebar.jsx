@@ -25,15 +25,49 @@ export default function SettingsSidebar({
   );
   const [educationLevel, setEducationLevel] = useState(user?.jenjang || "Tidak Tersedia");
 
-  const handleProfilePictureChange = (e) => {
+  const handleProfilePictureChange = async (e) => {
+    // const file = e.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = () => {
+    //     setProfilePicture(reader.result); // Set gambar yang diunggah sebagai URL base64
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfilePicture(reader.result); // Set gambar yang diunggah sebagai URL base64
-      };
-      reader.readAsDataURL(file);
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+
+  try {
+    setLoading(true);
+    const res = await axios.post(
+      "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/profilepic/update-profile-picture",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (res.data.photoUrl) {
+      setProfilePicture(res.data.photoUrl); // ⬅️ update foto di tampilan
+      const updatedUser = { ...user, photoUrl: res.data.photoUrl };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setSuccessMessage("Profile picture updated successfully!");
+    } else {
+      setErrorMessage("Failed to update profile picture.");
     }
+  } catch (err) {
+    console.error("Error uploading profile picture:", err);
+    setErrorMessage("Upload failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handleSave = async () => {
