@@ -3,10 +3,11 @@ FROM node:20 as build
 
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package*.json ./
-COPY vite.config.* ./
-RUN npm install
+# Copy dependency files and config files
+COPY package*.json vite.config.* tailwind.config.* postcss.config.* ./
+
+# Install dependencies (skip peer conflict problems)
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the app
 COPY . .
@@ -25,8 +26,8 @@ RUN npm install -g serve
 # Copy built files from the previous stage
 COPY --from=build /app/dist ./dist
 
-# Expose the port that serve will listen on
+# Expose the port
 EXPOSE 8080
 
-# Command to run the app
+# Command to serve
 CMD ["serve", "-s", "dist", "-l", "8080"]
