@@ -80,7 +80,7 @@ export default function SettingsSidebar({
         { email: user.email, jenjang: educationLevel },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -96,6 +96,22 @@ export default function SettingsSidebar({
     } catch (err) {
       setError("Terjadi kesalahan, silakan coba lagi.");
       console.error("Error updating jenjang:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPasswordEmail = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/auth/forgot-password",
+        { email: user.email }
+      );
+      alert("Password reset link has been sent to your email!");
+    } catch (err) {
+      console.error("Error sending reset password email:", err);
+      alert("Failed to send password reset email.");
     } finally {
       setLoading(false);
     }
@@ -184,9 +200,11 @@ export default function SettingsSidebar({
 
             {/* Reset Password & Log Out */}
             <div className="flex justify-between items-center w-full pt-4">
-              <a href="#" className="text-sm underline">
-                Reset Password
-              </a>
+            <button 
+            onClick={handleResetPasswordEmail}
+            className="text-sm underline">
+            Reset Password
+            </button>
               <button 
               onClick={handleLogout}
               className="bg-white text-blue-900 px-4 py-1 rounded hover:bg-gray-100">
