@@ -12,6 +12,9 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the app
 COPY . .
 
+# Fix esbuild for Linux inside Docker
+RUN npm rebuild esbuild
+
 # Build the app
 RUN npm run build
 
