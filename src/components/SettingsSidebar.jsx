@@ -25,15 +25,49 @@ export default function SettingsSidebar({
   );
   const [educationLevel, setEducationLevel] = useState(user?.jenjang || "Tidak Tersedia");
 
-  const handleProfilePictureChange = (e) => {
+  const handleProfilePictureChange = async (e) => {
+    // const file = e.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = () => {
+    //     setProfilePicture(reader.result); // Set gambar yang diunggah sebagai URL base64
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfilePicture(reader.result); // Set gambar yang diunggah sebagai URL base64
-      };
-      reader.readAsDataURL(file);
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+
+  try {
+    setLoading(true);
+    const res = await axios.post(
+      "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/profilepic/update-profile-picture",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (res.data.photoUrl) {
+      setProfilePicture(res.data.photoUrl); // ⬅️ update foto di tampilan
+      const updatedUser = { ...user, photoUrl: res.data.photoUrl };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setSuccessMessage("Profile picture updated successfully!");
+    } else {
+      setErrorMessage("Failed to update profile picture.");
     }
+  } catch (err) {
+    console.error("Error uploading profile picture:", err);
+    setErrorMessage("Upload failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handleSave = async () => {
@@ -46,7 +80,7 @@ export default function SettingsSidebar({
         { email: user.email, jenjang: educationLevel },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -62,6 +96,22 @@ export default function SettingsSidebar({
     } catch (err) {
       setError("Terjadi kesalahan, silakan coba lagi.");
       console.error("Error updating jenjang:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPasswordEmail = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/auth/forgot-password",
+        { email: user.email }
+      );
+      alert("Password reset link has been sent to your email!");
+    } catch (err) {
+      console.error("Error sending reset password email:", err);
+      alert("Failed to send password reset email.");
     } finally {
       setLoading(false);
     }
@@ -150,9 +200,11 @@ export default function SettingsSidebar({
 
             {/* Reset Password & Log Out */}
             <div className="flex justify-between items-center w-full pt-4">
-              <a href="#" className="text-sm underline">
-                Reset Password
-              </a>
+            <button 
+            onClick={handleResetPasswordEmail}
+            className="text-sm underline">
+            Reset Password
+            </button>
               <button 
               onClick={handleLogout}
               className="bg-white text-blue-900 px-4 py-1 rounded hover:bg-gray-100">

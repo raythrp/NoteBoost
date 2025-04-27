@@ -65,11 +65,12 @@ const Login = () => {
         localStorage.setItem("token", idToken)
 
         const res = await axios.post("/api/auth/login", { idToken })
+
         const fullUser = {
           email: res.data.email,
           name: user.displayName || res.data.nama || "Smart User",
           jenjang: res.data.jenjang || "Not Available",
-        }
+        };
 
         setUser(fullUser)  // Set user in context
         localStorage.setItem("user", JSON.stringify(fullUser))
