@@ -66,21 +66,10 @@ const Login = () => {
 
         const res = await axios.post("/api/auth/login", { idToken })
 
-        const photoRes = await axios.get(
-          "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/profilepic/get-profile-picture",
-          {
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-            },
-          }
-        );
-        const photoUrl = photoRes.data.photoUrl || "https://www.w3schools.com/howto/img_avatar.png";
-
         const fullUser = {
           email: res.data.email,
           name: user.displayName || res.data.nama || "Smart User",
           jenjang: res.data.jenjang || "Not Available",
-          photoUrl: photoUrl, // Tambahkan photoUrl di sini
         };
 
         setUser(fullUser)  // Set user in context
