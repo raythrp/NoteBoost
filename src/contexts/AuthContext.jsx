@@ -15,6 +15,7 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       const idToken = await user.getIdToken()
       localStorage.setItem("token", idToken)
       
-      const res = await axios.post("/api/auth/login", { idToken })
+      const res = await axios.post(`${BASE_URL}/api/auth/login`, { idToken });
       const fullUser = {
         email: res.data.email,
         name: user.displayName || res.data.nama || "Cacing Pintar",
