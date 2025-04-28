@@ -1,18 +1,5 @@
 import axios from "axios";
 
-// Default dummy data
-// const initialNotes = [
-//   { id: 1, title: "Negosiasi", content: "Content for Negosiasi" },
-//   { id: 2, title: "Teks Prosedur", content: "Content for Teks Prosedur" },
-//   { id: 3, title: "Hindu - Budha dan Islam", content: "Content for Hindu - Budha dan Islam" },
-//   { id: 4, title: "Bela Negara Dalam Konteks NKRI", content: "Content for Bela Negara Dalam Konteks NKRI" },
-//   { id: 5, title: "Larutan Asam Basa", content: "Content for Larutan Asam Basa" },
-//   { id: 6, title: "Seni Sunda Angklung", content: "Content for Seni Sunda Angklung" },
-//   { id: 7, title: "Voli Tangan", content: "Content for Voli Tangan" },
-//   { id: 8, title: "Cerita Fabel", content: "Content for Cerita Fabel" },
-//   { id: 9, title: "Fisika Kuantum", content: "Content for Fisika Kuantum" },
-// ];
-
 // let notes = [...initialNotes];
 const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app/api";
 // Get token from localStorage
