@@ -5,7 +5,6 @@ import Navbar from '../../components/desktop/NavbarDesktop';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Input from '../../components/Input';
-import Textarea from '../../components/Textarea';
 import { useNotes } from '../../contexts/NoteContext';
 import { uploadImageAndSaveNote } from '../../services/noteService';
 import { useAuth } from "../../contexts/AuthContext";
@@ -30,7 +29,7 @@ function AddNotePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addNote(title, selectedClass, subject, topic);
+    await addNote(topic, selectedClass, subject);
     navigate('/catatan');
 
     await addNote(title, content);
@@ -58,7 +57,7 @@ function AddNotePage() {
               </label>
               <Input
                 id="topic"
-                value={title}
+                value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Enter note topic"
                 required
