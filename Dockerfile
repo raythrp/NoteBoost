@@ -13,10 +13,10 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # 🛠️ Create .env file before build
-RUN echo "VITE_FIREBASE_API_KEY=your-api-key" > .env && \
-    echo "VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain" >> .env && \
-    echo "VITE_FIREBASE_PROJECT_ID=your-project-id" >> .env && \
-    echo "VITE_FIREBASE_APP_ID=your-app-id" >> .env
+RUN echo "VITE_FIREBASE_API_KEY=AIzaSyBug_EQX14McoqB9Rl9rlzHpX-nyn9hp0M" > .env && \
+    echo "VITE_FIREBASE_AUTH_DOMAIN=noteboost.firebaseapp.com" >> .env && \
+    echo "VITE_FIREBASE_PROJECT_ID=noteboost" >> .env && \
+    echo "VITE_FIREBASE_APP_ID=1:772262781875:web:e8082522f428b2e19f21c6" >> .env
 
 # Rebuild esbuild (optional if needed)
 RUN npm rebuild esbuild
