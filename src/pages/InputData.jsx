@@ -17,6 +17,7 @@ const InputData = () => {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const educationOptions = ["SMP", "SMA"]
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
   
   useEffect(() => {
     const pSign = localStorage.getItem("pendingSignUp")

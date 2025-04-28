@@ -6,11 +6,13 @@ import Logo from "../components/icons/Logo"
 import { useAuth } from "../contexts/AuthContext"
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import ForgotPassword from "./ForgotPassword"
+import { useNotes } from "../contexts/NoteContext";
 
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loginUser, user, setUser } = useAuth();
+  const { refetchNotes } = useNotes();
   const params = new URLSearchParams(location.search)
   const justSignedUp = params.get("verificationSent") === "true"
   const [email, setEmail] = useState("")
@@ -22,6 +24,7 @@ const Login = () => {
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   useEffect(() => {
     if (justSignedUp) {
@@ -64,7 +67,7 @@ const Login = () => {
         const idToken = await user.getIdToken()
         localStorage.setItem("token", idToken)
 
-        const res = await axios.post("/api/auth/login", { idToken })
+        const res = await axios.post(`${BASE_URL}/api/auth/login`, { idToken });
 
         const fullUser = {
           email: res.data.email,
@@ -72,9 +75,9 @@ const Login = () => {
           jenjang: res.data.jenjang || "Not Available",
         };
 
-        setUser(fullUser)  // Set user in context
+        setUser(fullUser)
         localStorage.setItem("user", JSON.stringify(fullUser))
-
+        refetchNotes()
         if (res.data.needsAdditionalInfo) {
           navigate("/input-data", { replace: true });
         } else {
@@ -105,7 +108,7 @@ const Login = () => {
         const idToken = await user.getIdToken()
         localStorage.setItem("token", idToken)
 
-        const res = await axios.post("/api/auth/login", { idToken })
+        const res = await axios.post(`${BASE_URL}/api/auth/login`, { idToken });
         const fullUser = {
           email: res.data.email,
           name: user.displayName || res.data.nama || "Smart User",
@@ -114,7 +117,7 @@ const Login = () => {
 
         setUser(fullUser)  // Set user in context
         localStorage.setItem("user", JSON.stringify(fullUser))
-
+        await refetchNotes()
         if (fullUser.jenjang === null) {
           navigate("/input-data-google", { replace: true });
         } else {
@@ -150,7 +153,7 @@ const Login = () => {
 
       setUser(fullUser);
       localStorage.setItem("user", JSON.stringify(fullUser));
-
+      await refetchNotes();
       if (!fullUser.jenjang) {
         navigate("/input-data-google", { replace: true });
       } else {

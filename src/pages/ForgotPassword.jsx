@@ -7,6 +7,7 @@ const ForgotPassword = ({ onClose, email: initialEmail }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const auth = getAuth();
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,7 +16,7 @@ const ForgotPassword = ({ onClose, email: initialEmail }) => {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

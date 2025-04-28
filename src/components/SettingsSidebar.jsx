@@ -24,6 +24,7 @@ export default function SettingsSidebar({
     initialProfilePicture || "/profile.jpg"
   );
   const [educationLevel, setEducationLevel] = useState(user?.jenjang || "Tidak Tersedia");
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   const handleProfilePictureChange = async (e) => {
     // const file = e.target.files[0];
@@ -76,7 +77,7 @@ export default function SettingsSidebar({
 
     try {
       const res = await axios.post(
-        "/api/auth/update-jenjang",
+        `${BASE_URL}/api/auth/update-jenjang`,
         { email: user.email, jenjang: educationLevel },
         {
           headers: {

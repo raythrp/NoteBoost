@@ -59,6 +59,7 @@ export function NoteProvider({ children }) {
                 updateNote: handleUpdateNote,
                 deleteNote: handleDeleteNote,
                 uploadImageAndSaveNote: handleUploadImageAndSaveNote,
+                refetchNotes: fetchNotes,
             }}
         >
             {children}
