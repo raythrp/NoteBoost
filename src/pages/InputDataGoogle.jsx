@@ -15,6 +15,7 @@ const InputDataGoogle = () => {
   const [loading, setLoading] = useState(false);
   const educationOptions = ["SMP", "SMA"];
   const [showDropdown, setShowDropdown] = useState(false);
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -37,7 +38,7 @@ const InputDataGoogle = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "/api/auth/update-jenjang", 
+      `${BASE_URL}/api/auth/update-jenjang`,  
         { email: user.email, jenjang: education },
         {
           headers: {
