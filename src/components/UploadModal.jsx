@@ -36,9 +36,7 @@ function UploadModal({ onClose }) {
   }
 
   const handleUploadComplete = async () => {
-    console.log("error");
     if (uploadedFile) {
-      console.log("error");
       setLoading(true);
       setError(null);
 

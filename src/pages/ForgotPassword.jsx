@@ -7,6 +7,7 @@ const ForgotPassword = ({ onClose, email: initialEmail }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const auth = getAuth();
+  const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,21 +16,27 @@ const ForgotPassword = ({ onClose, email: initialEmail }) => {
     setError("");
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
       setMessage("Password reset email sent! Please check your inbox.");
       setTimeout(() => {
         onClose();
-      }, 3000); // Close modal after 3 seconds
+      }, 10000);
     } catch (err) {
       console.error("Error sending password reset:", err);
-      
-      if (err.code === "auth/user-not-found") {
-        setError("No account found with this email address.");
-      } else if (err.code === "auth/invalid-email") {
-        setError("Please enter a valid email address.");
-      } else {
-        setError(`An error occurred: ${err.message}`);
-      }
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }

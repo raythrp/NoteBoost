@@ -7,45 +7,47 @@ export function NoteProvider({ children }) {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadNotes = async () => {
-            const loadedNotes = await getNotes();
-            setNotes(loadedNotes);
-            setLoading(false);
-        };
+    const fetchNotes = async () => {
+        setLoading(true);
+        const loadedNotes = await getNotes();
+        setNotes(loadedNotes);
+        setLoading(false);
+    };
 
-        loadNotes();
+    useEffect(() => {
+        fetchNotes();
     }, []);
 
-    const handleAddNote = (title, content) => {
+    const handleAddNote = async (title, content) => {
         const newNote = addNote(title, content);
-        setNotes(getNotes());
+        if (newNote) {
+            await fetchNotes(); // refetch after add
+        }
         return newNote;
     };
 
-    const handleUpdateNote = (id, title, content) => {
-        const updatedNote = updateNote(id, title, content);
-        setNotes(getNotes());
+    const handleUpdateNote = async (id, title, content) => {
+        const updatedNote = await updateNote(id, title, content);
+        if (updatedNote) {
+            await fetchNotes(); // refetch after update
+        }
         return updatedNote;
     };
 
-    const handleDeleteNote = (id) => {
-        const success = deleteNote(id);
+    const handleDeleteNote = async (id) => {
+        const success = await deleteNote(id);
         if (success) {
-            setNotes(getNotes());
+            await fetchNotes(); // refetch after delete
         }
         return success;
     };
 
     const handleUploadImageAndSaveNote = async (file, title, kelas, mata_pelajaran, topik) => {
-        try {
-            const newNote = await uploadImageAndSaveNote(file, title, kelas, mata_pelajaran, topik);
-            setNotes(await getNotes());  // Ensure notes are reloaded after the note is added
-            return newNote;
-        } catch (error) {
-            console.error("Error uploading and saving note:", error);
-            return null;
+        const newNote = await uploadImageAndSaveNote(file, title, kelas, mata_pelajaran, topik);
+        if (newNote) {
+            await fetchNotes(); // refetch after upload
         }
+        return newNote;
     };
 
     return (
@@ -57,6 +59,7 @@ export function NoteProvider({ children }) {
                 updateNote: handleUpdateNote,
                 deleteNote: handleDeleteNote,
                 uploadImageAndSaveNote: handleUploadImageAndSaveNote,
+                refetchNotes: fetchNotes,
             }}
         >
             {children}

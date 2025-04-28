@@ -14,10 +14,9 @@ function AddNotePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { addNote } = useNotes();
-  const [title, setTitle] = useState('');
+  const [topic, setTopic] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [subject, setSubject] = useState('');
-  const [topic, setTopic] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Check if we should show the upload modal immediately
@@ -42,16 +41,16 @@ function AddNotePage() {
           <h1 className="mb-4 text-xl font-bold">Add New Note</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Title field */}
+            {/* Topic field */}
             <div>
-              <label htmlFor="title" className="block mb-1 text-sm font-medium">
-                Title
+              <label htmlFor="topic" className="block mb-1 text-sm font-medium">
+                Topic
               </label>
               <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter note title"
+                id="topic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Enter note topic"
                 required
               />
             </div>
@@ -92,20 +91,6 @@ function AddNotePage() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Enter subject"
-                required
-              />
-            </div>
-
-            {/* Topic field */}
-            <div>
-              <label htmlFor="topic" className="block mb-1 text-sm font-medium">
-                Topic
-              </label>
-              <Textarea
-                id="topic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter note topic"
                 rows={10}
                 required
               />

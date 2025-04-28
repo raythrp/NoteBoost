@@ -3,10 +3,10 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBug_EQX14McoqB9Rl9rlzHpX-nyn9hp0M",
-  authDomain: "noteboost.firebaseapp.com",
-  projectId: "noteboost",
-  appId: "1:772262781875:web:e8082522f428b2e19f21c6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
