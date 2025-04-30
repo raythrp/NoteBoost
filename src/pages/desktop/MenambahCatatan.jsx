@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/desktop/NavbarDesktop";
 import SidebarDesktop from "../../components/desktop/SidebarDesktop";
 import { useNotes } from "../../contexts/NoteContext";
 
 export default function MenambahCatatan() {
   const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
+  const [content, setContent] = useState(notes[0]?.content || ""); // Konten catatan
 
   // Fungsi untuk mengupdate konten catatan
-  const handleContentChange = (newContent) => {
+  const handleContentChange = (e) => {
+    const newContent = e.target.value;
+    setContent(newContent);
     setNotes((prevNotes) =>
       prevNotes.map((note, index) =>
         index === 0 ? { ...note, content: newContent } : note
@@ -15,8 +18,23 @@ export default function MenambahCatatan() {
     );
   };
 
-  // Gabungkan semua catatan menjadi satu string
-  const combinedNotes = notes.map((note) => note.content).join("\n");
+  // Fungsi untuk membagi teks menjadi halaman berdasarkan jumlah baris
+  const splitIntoPages = (text, maxLinesPerPage) => {
+    const lines = text.split("\n"); // Pisahkan teks menjadi baris
+    const pages = [];
+
+    for (let i = 0; i < lines.length; i += maxLinesPerPage) {
+      pages.push(lines.slice(i, i + maxLinesPerPage).join("\n"));
+    }
+
+    return pages;
+  };
+
+  // Tentukan jumlah baris maksimum per halaman (misalnya, 25 baris per halaman)
+  const maxLinesPerPage = 25;
+
+  // Bagi konten menjadi halaman
+  const pages = splitIntoPages(content, maxLinesPerPage);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-500 to-blue-800">
@@ -76,15 +94,35 @@ export default function MenambahCatatan() {
                       />
                     </div>
 
-                    {/* Single Editable Note Content */}
-                    <div className="mb-4">
-                      <label className="block mb-1 text-sm font-medium">
-                        Catatan
-                      </label>
-                      <textarea
-                        className="w-full h-64 p-2 border rounded resize-none"
-                        placeholder="Tulis catatan Anda di sini..."
-                      ></textarea>
+                    {/* Editable Note Content */}
+                    <div className="space-y-8">
+                      {pages.map((page, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-300 rounded-md p-4 shadow-md bg-white"
+                          style={{
+                            height: "800px", // Tinggi halaman
+                            overflow: "hidden", // Sembunyikan teks yang melebihi batas
+                            pageBreakAfter: "always", // Pisahkan halaman
+                          }}
+                        >
+                          <textarea
+                            className="w-full h-full p-2 border-none resize-none outline-none"
+                            // value={page}
+                            // onChange={(e) => {
+                            //   const updatedPages = [...pages];
+                            //   updatedPages[index] = e.target.value;
+                            //   setContent(updatedPages.join("\n"));
+                            // }}
+                            placeholder="Tulis catatan Anda di sini..."
+                            style={{
+                              height: "100%",
+                              overflow: "hidden", // Sembunyikan teks yang melebihi batas
+                              lineHeight: "1.5", // Tinggi baris
+                            }}
+                          ></textarea>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ) : (
