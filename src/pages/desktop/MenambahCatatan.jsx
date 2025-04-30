@@ -63,7 +63,10 @@ export default function MenambahCatatan() {
                         </label>
                         <input
                           type="text"
-                          value={note.mataPelajaran || "Mata pelajaran tidak tersedia"}
+                          value={
+                            note.mataPelajaran ||
+                            "Mata pelajaran tidak tersedia"
+                          }
                           readOnly
                           className="w-full p-2 rounded border bg-gray-100"
                         />
@@ -86,10 +89,6 @@ export default function MenambahCatatan() {
                           Catatan
                         </label>
                         <textarea
-                          value={""}
-                          onChange={(e) =>
-                            handleContentChange(note.id, e.target.value)
-                          }
                           className="w-full p-2 rounded border h-32 resize-none"
                           placeholder="Tulis catatan Anda di sini..."
                         ></textarea>

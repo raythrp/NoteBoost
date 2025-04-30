@@ -91,10 +91,6 @@ export default function CatatanMobile() {
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Catatan</label>
                 <textarea
-                  value={note.content || ""}
-                  onChange={(e) =>
-                    handleContentChange(note.id, e.target.value)
-                  }
                   className="w-full p-2 rounded border h-32 resize-none"
                   placeholder="Tulis catatan Anda di sini..."
                 ></textarea>
