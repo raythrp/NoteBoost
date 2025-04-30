@@ -7,13 +7,16 @@ export default function MenambahCatatan() {
   const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
 
   // Fungsi untuk mengupdate konten catatan
-  const handleContentChange = (id, newContent) => {
+  const handleContentChange = (newContent) => {
     setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note.id === id ? { ...note, content: newContent } : note
+      prevNotes.map((note, index) =>
+        index === 0 ? { ...note, content: newContent } : note
       )
     );
   };
+
+  // Gabungkan semua catatan menjadi satu string
+  const combinedNotes = notes.map((note) => note.content).join("\n");
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-blue-500 to-blue-800">
@@ -34,67 +37,56 @@ export default function MenambahCatatan() {
             <div className="flex justify-center items-center flex-grow">
               <div className="bg-white w-[700px] h-full max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-y-auto">
                 {notes.length > 0 ? (
-                  notes.map((note, index) => (
-                    <div key={note.id} className="mb-6">
-                      {/* Header */}
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Page {index + 1}</span>
-                        <button className="text-blue-500 font-semibold">
-                          Enhance
-                        </button>
-                      </div>
-                      <hr className="mb-4 border-gray-300" />
-
-                      {/* Input Fields */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">
-                          Kelas
-                        </label>
-                        <input
-                          type="text"
-                          value={note.kelas || "Kelas tidak tersedia"}
-                          readOnly
-                          className="w-full p-2 rounded border bg-gray-100"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">
-                          Mata Pelajaran
-                        </label>
-                        <input
-                          type="text"
-                          value={
-                            note.mataPelajaran ||
-                            "Mata pelajaran tidak tersedia"
-                          }
-                          readOnly
-                          className="w-full p-2 rounded border bg-gray-100"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">
-                          Topik
-                        </label>
-                        <input
-                          type="text"
-                          value={note.topic || "Topik tidak tersedia"}
-                          readOnly
-                          className="w-full p-2 rounded border bg-gray-100"
-                        />
-                      </div>
-
-                      {/* Editable Note Content */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">
-                          Catatan
-                        </label>
-                        <textarea
-                          className="w-full p-2 rounded border h-32 resize-none"
-                          placeholder="Tulis catatan Anda di sini..."
-                        ></textarea>
-                      </div>
+                  <div>
+                    {/* Header */}
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Catatan</span>
+                      <button className="text-blue-500 font-semibold">
+                        Enhance
+                      </button>
                     </div>
-                  ))
+                    <hr className="mb-4 border-gray-300" />
+
+                    {/* Input Fields */}
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        value={notes[0].kelas || "Kelas tidak tersedia"}
+                        readOnly
+                        className="w-full p-2 rounded border bg-gray-100"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        value={
+                          notes[0].mataPelajaran ||
+                          "Mata pelajaran tidak tersedia"
+                        }
+                        readOnly
+                        className="w-full p-2 rounded border bg-gray-100"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        value={notes[0].topic || "Topik tidak tersedia"}
+                        readOnly
+                        className="w-full p-2 rounded border bg-gray-100"
+                      />
+                    </div>
+
+                    {/* Single Editable Note Content */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Catatan
+                      </label>
+                      <textarea
+                        className="w-full p-2 rounded border h-64 resize-none"
+                        placeholder="Tulis catatan Anda di sini..."
+                      ></textarea>
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-center text-gray-500">
                     Tidak ada catatan yang tersedia.
