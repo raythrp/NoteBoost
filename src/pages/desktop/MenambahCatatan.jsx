@@ -86,7 +86,7 @@ export default function MenambahCatatan() {
                           Catatan
                         </label>
                         <textarea
-                          value={note.content || ""}
+                          value={""}
                           onChange={(e) =>
                             handleContentChange(note.id, e.target.value)
                           }
