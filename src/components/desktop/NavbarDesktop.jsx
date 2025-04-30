@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Settings, FileText } from "react-feather"; // Import ikon tambahan
 import SettingsSidebar from "../SettingsSidebar";
-import { useAuth } from "../../contexts/AuthContext"; 
+import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom"; // Import Link dari react-router-dom
 
 const Navbar = () => {
-  const { user } = useAuth(); 
-  const [username, setUsername] = useState(user?.name || "Cacing Pintar"
-  );
+  const { user } = useAuth();
+  const [username, setUsername] = useState(user?.name || "Cacing Pintar");
   const [profilePicture, setProfilePicture] = useState(
     localStorage.getItem("profilePicture") || "/profile.jpg"
   );
@@ -48,7 +48,7 @@ const Navbar = () => {
               <img
                 src={profilePicture}
                 alt="Profile"
-                className="w-full h-full object-cover"
+                className="object-cover w-full h-full"
               />
             </div>
             <span className="text-[16px] font-semibold text-[#215273]">
@@ -57,10 +57,12 @@ const Navbar = () => {
           </div>
 
           {/* Bagian Tengah: Home */}
-          <div className="flex items-center gap-2">
-            <FileText className="w-6 h-6 text-[#215273]" />
-            <span className="text-[18px] font-bold text-[#215273]">Home</span>
-          </div>
+          <Link to="/" className="no-underline">
+            <div className="flex items-center gap-2 cursor-pointer">
+              <FileText className="w-6 h-6 text-[#215273]" />
+              <span className="text-[18px] font-bold text-[#215273]">Home</span>
+            </div>
+          </Link>
 
           {/* Bagian Kanan: Settings */}
           <div

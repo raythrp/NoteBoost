@@ -19,7 +19,7 @@ export default function MenambahCatatan() {
   const combinedNotes = notes.map((note) => note.content).join("\n");
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-blue-500 to-blue-800">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-500 to-blue-800">
       {/* Background Bubbles */}
       <div className="absolute w-[300px] h-[300px] bg-white bg-opacity-20 rounded-full top-[20%] left-[10%] z-0"></div>
       <div className="absolute w-[400px] h-[400px] bg-white bg-opacity-20 rounded-full bottom-[10%] right-[15%] z-0"></div>
@@ -27,21 +27,21 @@ export default function MenambahCatatan() {
       {/* Navbar */}
       <Navbar />
 
-      <div className="flex h-screen relative z-10">
+      <div className="relative z-10 flex h-screen">
         {/* Sidebar */}
         <SidebarDesktop notes={notes} />
 
         {/* Main Area */}
-        <div className="flex-1 relative overflow-hidden">
-          <div className="relative z-10 p-6 text-white h-full flex flex-col">
-            <div className="flex justify-center items-center flex-grow">
+        <div className="relative flex-1 overflow-hidden">
+          <div className="relative z-10 flex flex-col h-full p-6 text-white">
+            <div className="flex items-center justify-center flex-grow">
               <div className="bg-white w-[700px] h-full max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-y-auto">
                 {notes.length > 0 ? (
                   <div>
                     {/* Header */}
-                    <div className="flex justify-between text-sm mb-2">
+                    <div className="flex justify-between mb-2 text-sm">
                       <span>Catatan</span>
-                      <button className="text-blue-500 font-semibold">
+                      <button className="font-semibold text-blue-500">
                         Enhance
                       </button>
                     </div>
@@ -53,7 +53,7 @@ export default function MenambahCatatan() {
                         type="text"
                         value={notes[0].kelas || "Kelas tidak tersedia"}
                         readOnly
-                        className="w-full p-2 rounded border bg-gray-100"
+                        className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
                     <div className="mb-4">
@@ -64,7 +64,7 @@ export default function MenambahCatatan() {
                           "Mata pelajaran tidak tersedia"
                         }
                         readOnly
-                        className="w-full p-2 rounded border bg-gray-100"
+                        className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
                     <div className="mb-4">
@@ -72,17 +72,17 @@ export default function MenambahCatatan() {
                         type="text"
                         value={notes[0].topic || "Topik tidak tersedia"}
                         readOnly
-                        className="w-full p-2 rounded border bg-gray-100"
+                        className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
 
                     {/* Single Editable Note Content */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1">
+                      <label className="block mb-1 text-sm font-medium">
                         Catatan
                       </label>
                       <textarea
-                        className="w-full p-2 rounded border h-64 resize-none"
+                        className="w-full h-64 p-2 border rounded resize-none"
                         placeholder="Tulis catatan Anda di sini..."
                       ></textarea>
                     </div>
