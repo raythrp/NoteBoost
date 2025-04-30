@@ -17,7 +17,7 @@ export default function CatatanMobile() {
   };
 
   const handleMenuClick = () => {
-    navigate("/add"); // Arahkan ke halaman AddNotePage
+    navigate("/"); // Arahkan ke halaman home
   };
 
   const handleEnhanceClick = () => {
