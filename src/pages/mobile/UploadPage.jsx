@@ -6,6 +6,7 @@ import { ArrowLeft } from "react-feather"
 import { useNotes } from "../../contexts/NoteContext"
 import Input from "../../components/Input"
 import CloudUploadIcon from "../../components/icons/CloudUpload"
+import { uploadImageAndSaveNote } from "../../services/noteService";
 
 function UploadPage() {
   const navigate = useNavigate()
@@ -32,20 +33,42 @@ function UploadPage() {
   }
 
   const handleUploadComplete = async () => {
-    if (uploadedFile) {
-      try {
-        setUploading(true)
-        // In a real app, you would upload the file to a server here
-        // For now, we'll just create a note with the file name
-        await addNote(title || uploadedFile.name, `Uploaded file: ${uploadedFile.name}`)
-        navigate("/")
-      } catch (error) {
-        console.error("Error uploading file:", error)
-      } finally {
-        setUploading(false)
+    setLoading(true);
+    try {
+      // Call the uploadImageAndSaveNote function passing necessary parameters
+      const note = await uploadImageAndSaveNote(
+        uploadedFile,
+        title,
+        "",
+        "",
+        ""
+      );
+
+      if (note) {
+        setContent(note.extractedText);
+        onClose();
+      } else {
+        setError("Failed to extract text or save the note.");
+        onClose();
       }
+
+      // // If note is successfully saved, navigate to catatan page
+      // if (note) {
+      //   console.log(
+      //     `[${new Date().toLocaleTimeString()}] Note berhasil disimpan:`,
+      //     note
+      //   );
+      //   navigate("/catatan"); // Navigate to the notes page if saved successfully
+      // } else {
+      //   setError("Failed to extract text or save the note.");
+      // }
+    } catch (err) {
+      console.error("Error during image upload and note save:", err);
+      setError("An error occurred while processing the image.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100" onDragOver={handleDragOver} onDrop={handleDrop}>

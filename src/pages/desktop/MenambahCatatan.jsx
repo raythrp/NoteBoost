@@ -13,8 +13,6 @@ export default function MenambahCatatan() {
 
 
   useEffect(() => {
-    console.log("Available notes:", notes);
-    console.log("Looking for noteId:", id);
     if (!targetNote) {
       navigate('/'); // Optional: Redirect if note not found
       return;
@@ -123,7 +121,7 @@ export default function MenambahCatatan() {
                         >
                           <textarea
                             className="w-full h-full p-2 border-none resize-none outline-none"
-                            // value={page}
+                            value={page}
                             // onChange={(e) => {
                             //   const updatedPages = [...pages];
                             //   updatedPages[index] = e.target.value;

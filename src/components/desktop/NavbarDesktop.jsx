@@ -31,7 +31,7 @@ const Navbar = () => {
     // Tutup sidebar
     setIsSidebarOpen(false);
   };
-
+  const userSlug = user.name?.toLowerCase().replace(/\s+/g, "-");
   useEffect(() => {
     // Ambil data dari localStorage saat komponen dimuat
     const savedUsername = localStorage.getItem("username");
@@ -60,7 +60,7 @@ const Navbar = () => {
           </div>
 
           {/* Bagian Tengah: Home */}
-          <Link to="/" className="no-underline">
+          <Link to={`/${userSlug}`} className="no-underline">
             <div className="flex items-center gap-2 cursor-pointer">
               <FileText className="w-6 h-6 text-[#215273]" />
               <span className="text-[18px] font-bold text-[#215273]">Home</span>
