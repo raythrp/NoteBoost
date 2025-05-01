@@ -61,10 +61,21 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", idToken)
       
       const res = await axios.post(`${BASE_URL}/api/auth/login`, { idToken });
+      try {
+        const photoRes = await axios.get(`${BASE_URL}/api/profilepic/get-profile-picture?email=${res.data.email}`, {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
+        photoUrl = photoRes.data.photoUrl;
+      } catch (err) {
+        console.error("Failed to fetch profile picture (Google):", err);
+      }
       const fullUser = {
         email: res.data.email,
         name: user.displayName || res.data.nama || "Cacing Pintar",
         jenjang: res.data.jenjang || "Tidak Tersedia",
+        photoUrl: photoUrl || "/profile.jpg",
       };
       setUser(fullUser);
       localStorage.setItem("user", JSON.stringify(fullUser));

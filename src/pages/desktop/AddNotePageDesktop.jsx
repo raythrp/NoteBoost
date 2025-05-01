@@ -32,14 +32,6 @@ function AddNotePage() {
     e.preventDefault();
     await addNote(topic, selectedClass, subject, content);
     navigate("/catatan");
-
-    await addNote(title, content);
-    const userSlug = user?.name.toLowerCase().replace(/\s+/g, "-");
-    if (userSlug) {
-      navigate(`/${userSlug}`, { replace: true });
-    } else {
-      navigate("/");
-    }
   };
 
   return (
@@ -104,8 +96,8 @@ function AddNotePage() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Enter subject"
-                rows={10}
                 required
+                rows={10}
               />
             </div>
 

@@ -7,9 +7,7 @@ import { Link } from "react-router-dom"; // Import Link dari react-router-dom
 const Navbar = () => {
   const { user } = useAuth();
   const [username, setUsername] = useState(user?.name || "Cacing Pintar");
-  const [profilePicture, setProfilePicture] = useState(
-    localStorage.getItem("profilePicture") || "/profile.jpg"
-  );
+  const [profilePicture, setProfilePicture] = useState(user?.photoUrl || "/profile.jpg");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
