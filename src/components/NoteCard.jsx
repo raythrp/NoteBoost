@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 
-function NoteCard({ id, title, onEdit, onDelete, onOpen }) {
+function NoteCard({ id, title, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false);
 
   const toggleMenu = () => {
@@ -10,13 +10,15 @@ function NoteCard({ id, title, onEdit, onDelete, onOpen }) {
   };
   
   const handleCardClick = () => {
-    onOpen(id); // Navigate to note detail page
+    onEdit(id); // Navigate to note detail page
   };
 
   return (
     <div className="relative w-full">
-      <div className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2">
-      onClick={handleCardClick}
+      <div 
+        className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2"
+        onClick={handleCardClick}
+      >
         {/* Card content would go here */}
       </div>
       <div className="flex items-center justify-between mt-2">
