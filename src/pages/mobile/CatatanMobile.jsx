@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import { FiMenu } from "react-icons/fi"; // Ikon menu dari react-icons
 import { useNotes } from "../../contexts/NoteContext";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate, useParams  } from "react-router-dom"; // Import useNavigate
 
 export default function CatatanMobile() {
   const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
+  const { id } = useParams();
   const navigate = useNavigate(); // Hook untuk navigasi
-  const [content, setContent] = useState(notes[0]?.content || ""); // Konten catatan
+  const targetNote = notes.find(note => note.id === id);
+  const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+
+  useEffect(() => {
+    if (!targetNote) {
+      navigate('/'); // Optional: Redirect if note not found
+      return;
+    }
+    setContent(targetNote.content || '');
+  }, [targetNote, navigate]);
 
   // Fungsi untuk mengupdate konten catatan
   const handleContentChange = (e) => {
@@ -75,7 +85,7 @@ export default function CatatanMobile() {
               <label className="block text-sm font-medium mb-1">Kelas</label>
               <input
                 type="text"
-                value={notes[0].kelas || "Kelas tidak tersedia"}
+                value={targetNote?.selectedClass || "Kelas tidak tersedia"}
                 readOnly
                 className="w-full p-2 rounded border bg-gray-100"
               />
@@ -86,7 +96,7 @@ export default function CatatanMobile() {
               </label>
               <input
                 type="text"
-                value={notes[0].mataPelajaran || "Mata pelajaran tidak tersedia"}
+                value={targetNote?.subject || "Mata pelajaran tidak tersedia"}
                 readOnly
                 className="w-full p-2 rounded border bg-gray-100"
               />
@@ -95,7 +105,7 @@ export default function CatatanMobile() {
               <label className="block text-sm font-medium mb-1">Topik</label>
               <input
                 type="text"
-                value={notes[0].topic || "Topik tidak tersedia"}
+                value={targetNote.topic || "Topik tidak tersedia"}
                 readOnly
                 className="w-full p-2 rounded border bg-gray-100"
               />
@@ -115,7 +125,7 @@ export default function CatatanMobile() {
                 >
                   <textarea
                     className="w-full h-full p-2 border-none resize-none outline-none"
-                    // value={page}
+                    value={page}
                     // onChange={(e) => {
                     //   const updatedPages = [...pages];
                     //   updatedPages[index] = e.target.value;
