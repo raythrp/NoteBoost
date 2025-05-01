@@ -30,8 +30,9 @@ function AddNotePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addNote(topic, selectedClass, subject, content);
-    navigate("/catatan");
+    const note = await addNote(topic, selectedClass, subject, content);
+    // Note id belom ada
+    navigate(`/catatan/${note.id}`);
   };
 
   const jenjangToClasses = {

@@ -24,7 +24,7 @@ function EditNotePage() {
       setSelectedClass(note.selectedClass);
       setSubject(note.subject);
     } else {
-      navigate('/catatan');
+      navigate('/');
     }
   }, [id, navigate, notes]);
 
@@ -32,7 +32,7 @@ function EditNotePage() {
     e.preventDefault();
     const noteId = parseInt(id);
     await updateNote(noteId, topic, selectedClass, subject);
-    navigate('/catatan');
+    navigate(`/catatan/${noteId}`);
   };
 
   return (

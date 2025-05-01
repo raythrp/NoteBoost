@@ -43,7 +43,7 @@ function UploadModal({ onClose }) {
       try {
         const note = await uploadImageAndSaveNote(uploadedFile, title, "", "", "");
         if (note) {
-          navigate('/catatan');
+          navigate(`/catatan/${note.id}`);
         } else {
           setError("Failed to extract text or save the note.");
         }

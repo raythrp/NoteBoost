@@ -20,6 +20,9 @@ const getNotes = async () => {
             id: item.id,
             title: `${item.mata_pelajaran} - ${item.topik}`,
             content: item.isi_catatan_asli,
+            topic: item.topik,
+            selectedClass: item.kelas,
+            subject: item.mata_pelajaran,
         }));
         return notes;
     } catch (e) {

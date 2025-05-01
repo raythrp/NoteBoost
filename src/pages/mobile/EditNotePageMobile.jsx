@@ -16,15 +16,16 @@ function EditNotePage() {
   const [subject, setSubject] = useState('');
 
   useEffect(() => {
-    const noteId = parseInt(id);
-    const note = notes.find((note) => note.id === noteId);
+    console.log("Available notes:", notes);
+    console.log("Looking for noteId:", id);
+    const note = notes.find((note) => parseInt(note.id) === id);
 
     if (note) {
       setTopic(note.topic);
       setSelectedClass(note.selectedClass);
       setSubject(note.subject);
     } else {
-      navigate('/catatan');
+      navigate('/');
     }
   }, [id, navigate, notes]);
 
@@ -32,7 +33,7 @@ function EditNotePage() {
     e.preventDefault();
     const noteId = parseInt(id);
     await updateNote(noteId, topic, selectedClass, subject);
-    navigate('/catatan');
+    navigate(`/catatan/${note.id}`);
   };
 
   return (

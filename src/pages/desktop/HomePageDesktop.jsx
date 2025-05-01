@@ -19,7 +19,7 @@ function HomePage() {
   const totalPages = Math.ceil((notes?.length || 0) / itemsPerPage);
 
   const handleEdit = (id) => {
-    navigate(`/edit/${id}`);
+    navigate(`/catatan/${id}`);
   };
 
   const handleDelete = async (id) => {
