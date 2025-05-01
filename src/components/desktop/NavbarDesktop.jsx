@@ -13,6 +13,11 @@ const Navbar = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  useEffect(() => {
+    if (user?.photoUrl) {
+      setProfilePicture(user.photoUrl);
+    }
+  }, [user]);
 
   const handleSaveSettings = (newUsername, newProfilePicture) => {
     // Simpan perubahan ke localStorage
