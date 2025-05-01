@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getNotes, addNote, updateNote, deleteNote,uploadImageAndSaveNote } from "../services/noteService";
+import { getNotes, addNote, updateNote, deleteNote, uploadImageAndSaveNote } from "../services/noteService";
 
 const NoteContext = createContext();
 
@@ -18,12 +18,12 @@ export function NoteProvider({ children }) {
         fetchNotes();
     }, []);
 
-    const handleAddNote = async (title, content) => {
-        const newNote = addNote(title, content);
-        if (newNote) {
-            await fetchNotes(); // refetch after add
-        }
-        return newNote;
+    const handleAddNote = async (title, kelas, mata_pelajaran, content) => {
+      const newNote = addNote(title, kelas, mata_pelajaran, content);
+      if (newNote) {
+        await fetchNotes(); // refetch after add
+      }
+      return newNote;
     };
 
     const handleUpdateNote = async (id, title, content) => {

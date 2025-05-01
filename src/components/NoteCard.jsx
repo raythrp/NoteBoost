@@ -1,30 +1,41 @@
 import React, { useState } from 'react';
-import { MoreHorizontal } from 'react-feather';
+import { MoreHorizontal } from 'lucide-react';
 
 function NoteCard({ id, title, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false);
 
-  const toggleMenu = () => {
+  const toggleMenu = (e) => {
+    e.stopPropagation(); // Prevent triggering card click when clicking menu
     setShowMenu(!showMenu);
+  };
+  
+  const handleCardClick = () => {
+    onEdit(id); // Navigate to note detail page
   };
 
   return (
     <div className="relative w-full">
-      <div className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2">
+      <div 
+        className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2"
+        onClick={handleCardClick}
+      >
         {/* Card content would go here */}
       </div>
-      <div className="flex justify-between items-center mt-2">
+      <div className="flex items-center justify-between mt-2">
         <h3 className="text-base font-normal text-black">{title}</h3>
         <div className="relative">
-          <button className="p-1" onClick={toggleMenu} aria-label="More options">
+          <button className="p-1" 
+          onClick={toggleMenu} 
+          aria-label="More options">
             <MoreHorizontal className="w-6 h-6 text-gray-800" />
           </button>
           
           {showMenu && (
             <div className="absolute right-0 mt-1 bg-[#215273] rounded-lg shadow-lg z-10 flex">
               <button 
-                className="p-2 text-white flex items-center"
-                onClick={() => {
+                className="flex items-center p-2 text-white"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
                   onEdit(id);
                   setShowMenu(false);
                 }}
@@ -33,8 +44,9 @@ function NoteCard({ id, title, onEdit, onDelete }) {
               </button>
               <div className="w-px bg-white/30"></div>
               <button 
-                className="p-2 text-white flex items-center"
-                onClick={() => {
+                className="flex items-center p-2 text-white"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
                   onDelete(id);
                   setShowMenu(false);
                 }}

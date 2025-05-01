@@ -5,7 +5,7 @@ import React from "react"
 function PageIndicator({ totalPages, currentPage, onPageChange }) {
   const getPageItems = () => {
     const pages = [];
-    const maxVisible = 5;
+    const maxVisible = 100;
     const ellipsis = <span className="px-1 text-white/50">...</span>;
 
     if (totalPages <= maxVisible) {

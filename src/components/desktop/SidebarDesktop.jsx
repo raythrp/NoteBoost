@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { LayoutPanelLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
-export default function SidebarDesktop({ onNewNotesClick, notes, onUpdateNotes }) {
+export default function SidebarDesktop({ notes, onUpdateNotes }) {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedNote, setSelectedNote] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const navigate = useNavigate(); // Inisialisasi useNavigate
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -13,6 +15,10 @@ export default function SidebarDesktop({ onNewNotesClick, notes, onUpdateNotes }
   const handleEditClick = (note) => {
     setSelectedNote(note);
     setShowEditModal(true);
+  };
+
+  const handleNewNotesClick = () => {
+    navigate("/add"); // Navigasi ke halaman /add
   };
 
   return (
@@ -25,7 +31,7 @@ export default function SidebarDesktop({ onNewNotesClick, notes, onUpdateNotes }
         <div className="flex items-center justify-between bg-white border rounded px-2 py-1">
           {isOpen && (
             <button
-              onClick={onNewNotesClick}
+              onClick={handleNewNotesClick} // Panggil handleNewNotesClick
               className="text-sm font-medium text-gray-700"
             >
               + New Notes

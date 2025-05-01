@@ -20,7 +20,7 @@ export default function AppRoutes() {
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/add" element={<AddNotePage />} />
-        <Route path="/edit/:id" element={<EditNotePage />} />
+        <Route path="/catatan/:id" element={<EditNotePage />} />
       </Route>
     </Routes>
   );

@@ -80,7 +80,7 @@ function App() {
       <Route path="/Forgot-Password" element={isMobile ? <ForgotPassword /> : <ForgotPassword />} />
       <Route path="/input-data" element={isMobile ? <InputData /> : <InputData />} />
       <Route path="/menambah-catatan" element={isMobile ? <MenambahCatatanMobile /> : <MenambahCatatan />} />
-      <Route path="/catatan" element={isMobile ? <CatatanMobile /> : <CatatanMobile />} />
+      <Route path="/catatan/:id" element={isMobile ? <CatatanMobile /> : <MenambahCatatan />} />
       <Route path="/input-data-google" element={<InputDataGoogle />} />
       {/* Public-only */}
       <Route
@@ -126,7 +126,7 @@ function App() {
         }
       />
       <Route
-        path="/edit/:id"
+        path="/catatan/:id"
         element={
           user
             ? isMobile

@@ -10,7 +10,8 @@ export default function MenambahCatatanMobile() {
     e.preventDefault(); // Mencegah reload halaman
     if (kelas && mataPelajaran) {
       // Navigasi ke halaman CatatanMobile
-      navigate("/catatan", { state: { kelas, mataPelajaran } });
+      // Note id belom ada
+      navigate(`/catatan/${note.id}`, { state: { kelas, mataPelajaran } });
     } else {
       alert("Mohon isi kelas dan mata pelajaran.");
     }
