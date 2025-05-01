@@ -27,48 +27,40 @@ export default function SettingsSidebar({
   const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   const handleProfilePictureChange = async (e) => {
-    // const file = e.target.files[0];
-    // if (file) {
-    //   const reader = new FileReader();
-    //   reader.onload = () => {
-    //     setProfilePicture(reader.result); // Set gambar yang diunggah sebagai URL base64
-    //   };
-    //   reader.readAsDataURL(file);
-    // }
     const file = e.target.files[0];
-  if (!file) return;
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append('profilePicture', file);
+    const formData = new FormData();
+    formData.append("profilePicture", file);
 
-  try {
-    setLoading(true);
-    const res = await axios.post(
-      "https://noteboost-serve-772262781875.asia-southeast2.run.app/api/profilepic/update-profile-picture",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
-        },
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${BASE_URL}/api/profilepic/update-profile-picture`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.data.photoUrl) {
+        const updatedUser = { ...user, photoUrl: res.data.photoUrl };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setProfilePicture(res.data.photoUrl);
+        setSuccessMessage("Profile picture updated successfully!");
+      } else {
+        setErrorMessage("Failed to update profile picture.");
       }
-    );
-
-    if (res.data.photoUrl) {
-      setProfilePicture(res.data.photoUrl); // ⬅️ update foto di tampilan
-      const updatedUser = { ...user, photoUrl: res.data.photoUrl };
-      setUser(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setSuccessMessage("Profile picture updated successfully!");
-    } else {
-      setErrorMessage("Failed to update profile picture.");
+    } catch (err) {
+      console.error("Error uploading profile picture:", err);
+      setErrorMessage("Upload failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error uploading profile picture:", err);
-    setErrorMessage("Upload failed. Please try again.");
-  } finally {
-    setLoading(false);
-  }
   };
 
   const handleSave = async () => {
@@ -138,6 +130,7 @@ export default function SettingsSidebar({
             <div className="relative">
               <img
                 src={profilePicture}
+                onError={(e) => { e.target.src = "/profile.jpg" }}
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-2 border-white"
               />
