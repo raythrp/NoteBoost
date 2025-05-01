@@ -18,7 +18,7 @@ function EditNotePage() {
   useEffect(() => {
     console.log("Available notes:", notes);
     console.log("Looking for noteId:", id);
-    const note = notes.find((note) => parseInt(note.id) === id);
+    const note = notes.find(note => note.id === id);
 
     if (note) {
       setTopic(note.topic);
