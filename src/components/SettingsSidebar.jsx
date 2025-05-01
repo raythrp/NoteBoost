@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext"; 
 import axios from "axios";
 export default function SettingsSidebar({
@@ -20,11 +20,15 @@ export default function SettingsSidebar({
     window.location.href = "/login";
   };
   const [username, setUsername] = useState(user?.name || "Cacing Pintar");
-  const [profilePicture, setProfilePicture] = useState(
-    initialProfilePicture || "/profile.jpg"
-  );
+  const [profilePicture, setProfilePicture] = useState(user?.photoUrl || "/profile.jpg");
   const [educationLevel, setEducationLevel] = useState(user?.jenjang || "Tidak Tersedia");
   const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
+
+  useEffect(() => {
+      const savedProfilePicture = localStorage.getItem("profilePicture");
+      if (savedProfilePicture) setProfilePicture(savedProfilePicture);
+    }, []);
+  
 
   const handleProfilePictureChange = async (e) => {
     const file = e.target.files[0];
@@ -41,7 +45,6 @@ export default function SettingsSidebar({
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -51,6 +54,7 @@ export default function SettingsSidebar({
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setProfilePicture(res.data.photoUrl);
+        onClose();
         setSuccessMessage("Profile picture updated successfully!");
       } else {
         setErrorMessage("Failed to update profile picture.");
@@ -130,7 +134,6 @@ export default function SettingsSidebar({
             <div className="relative">
               <img
                 src={profilePicture}
-                onError={(e) => { e.target.src = "/profile.jpg" }}
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-2 border-white"
               />
