@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from "../../components/desktop/NavbarDesktop";
 import SidebarDesktop from "../../components/desktop/SidebarDesktop";
 import { useNotes } from "../../contexts/NoteContext";
 
 export default function MenambahCatatan() {
   const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
-  const [content, setContent] = useState(notes[0]?.content || ""); // Konten catatan
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const targetNote = notes.find(note => note.id === id);
+  const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+
+
+  useEffect(() => {
+    console.log("Available notes:", notes);
+    console.log("Looking for noteId:", id);
+    if (!targetNote) {
+      navigate('/'); // Optional: Redirect if note not found
+      return;
+    }
+    setContent(targetNote.content || '');
+  }, [targetNote, navigate]);
 
   // Fungsi untuk mengupdate konten catatan
   const handleContentChange = (e) => {
@@ -69,7 +84,7 @@ export default function MenambahCatatan() {
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={notes[0].kelas || "Kelas tidak tersedia"}
+                        value={targetNote?.selectedClass || "Kelas tidak tersedia"}
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
@@ -78,7 +93,7 @@ export default function MenambahCatatan() {
                       <input
                         type="text"
                         value={
-                          notes[0].mataPelajaran ||
+                          targetNote?.subject ||
                           "Mata pelajaran tidak tersedia"
                         }
                         readOnly
@@ -88,7 +103,7 @@ export default function MenambahCatatan() {
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={notes[0].topic || "Topik tidak tersedia"}
+                        value={targetNote?.topic || "Topik tidak tersedia"}
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
                       />

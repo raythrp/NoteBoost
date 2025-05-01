@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getNotes, addNote, updateNote, deleteNote,uploadImageAndSaveNote } from "../services/noteService";
+import { getNotes, addNote, updateNote, deleteNote, uploadImageAndSaveNote } from "../services/noteService";
 
 const NoteContext = createContext();
 
