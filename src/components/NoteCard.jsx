@@ -4,7 +4,7 @@ import { MoreHorizontal } from 'lucide-react';
 function NoteCard({ id, title, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false);
 
-  const toggleMenu = () => {
+  const toggleMenu = (e) => {
     e.stopPropagation(); // Prevent triggering card click when clicking menu
     setShowMenu(!showMenu);
   };
