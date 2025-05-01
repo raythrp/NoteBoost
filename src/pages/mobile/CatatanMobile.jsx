@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from "react";
-import { FiMenu } from "react-icons/fi"; // Ikon menu dari react-icons
+import { FiMenu, FiArrowLeft } from "react-icons/fi"; // Ikon menu dari react-icons
 import { useNotes } from "../../contexts/NoteContext";
 import { useNavigate, useParams  } from "react-router-dom"; // Import useNavigate
 
@@ -48,7 +48,8 @@ export default function CatatanMobile() {
   const pages = splitIntoPages(content, maxLinesPerPage);
 
   const handleMenuClick = () => {
-    navigate("/"); // Arahkan ke halaman home
+    const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/${userSlug}`, { replace: true });
   };
 
   const handleEnhanceClick = () => {
@@ -62,7 +63,7 @@ export default function CatatanMobile() {
         {/* Ikon Menu dan Teks Notes */}
         <div className="flex items-center space-x-2">
           <button onClick={handleMenuClick} className="text-gray-800 text-2xl">
-            <FiMenu />
+            < FiArrowLeft/>
           </button>
           <h1 className="text-gray-800 text-lg font-bold">Notes</h1>
         </div>
