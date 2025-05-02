@@ -6,7 +6,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 export default function CatatanMobile() {
-  const { notes, setNotes } = useNotes();
+  const { notes } = useNotes();
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);

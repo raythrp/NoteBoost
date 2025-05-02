@@ -7,7 +7,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 export default function MenambahCatatan() {
-  const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
+  const { notes } = useNotes(); // Ambil daftar catatan dari context
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);

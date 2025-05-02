@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { LayoutPanelLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate, useParams } from "react-router-dom"; // Import useNavigate
 
 export default function SidebarDesktop({ notes, onUpdateNotes }) {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedNote, setSelectedNote] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const navigate = useNavigate(); // Inisialisasi useNavigate
+  const { id } = useParams();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -44,19 +45,15 @@ export default function SidebarDesktop({ notes, onUpdateNotes }) {
         </div>
 
         <div className="mt-4">
-          {notes.map((note) => (
-            <div
+          {isOpen && notes.map((note) => (
+            <button
               key={note.id}
-              className="bg-white p-2 mb-2 rounded shadow text-sm flex justify-between items-center"
+              onClick={() => navigate(`/catatan/${note.id}`)}
+              className={`w-full text-left p-2 mb-2 rounded shadow text-sm flex justify-between items-center transition 
+                ${id === note.id ? 'bg-blue-500 text-white' : 'bg-white hover:bg-gray-100'}`}
             >
-              <span>{note.mataPelajaran}</span>
-              <button
-                onClick={() => handleEditClick(note)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ...
-              </button>
-            </div>
+              <span>{note.title}</span>
+            </button>
           ))}
         </div>
       </div>
