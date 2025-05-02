@@ -22,9 +22,9 @@ const getNotes = async () => {
             content: item.hasil_enhance
               ? `${item.isi_catatan_asli}\n\n\nHasil Enchance\n${item.hasil_enhance}`
               : item.isi_catatan_asli,
-            topic: item.topik || 'Topic not available',
-            selectedClass: item.kelas ? item.kelas : '',
-            subject: item.mata_pelajaran ? item.mata_pelajaran : '',
+            topic: item.topik || '',
+            selectedClass: item.kelas || '',
+            subject: item.mata_pelajaran || '',
         }));
         return notes;
     } catch (e) {
