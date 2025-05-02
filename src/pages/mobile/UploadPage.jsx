@@ -92,10 +92,10 @@ function UploadPage() {
               htmlFor="file-upload"
               className="bg-[#215273] text-white w-[210px] h-[52px] text-xl flex items-center justify-center rounded-md shadow-md cursor-pointer mb-8"
             >
-              JELAJAH
+              EXPLORE
             </label>
 
-            <p className="text-center text-gray-700">atau tarik file kesini</p>
+            <p className="text-center text-gray-700">or drag the photo here</p>
           </div>
         )}
       </div>
