@@ -17,6 +17,7 @@ export default function MenambahCatatan() {
   const [classValue, setClassValue] = useState(targetNote?.selectedClass || "Class not available");
   const [subjectValue, setSubjectValue] = useState(targetNote?.subject || "Subject not available");
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
+  const [enhancedContent, setEnhancedContent] = useState(targetNote?.enhance || "");
   const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
   const { user } = useAuth();
@@ -50,6 +51,7 @@ export default function MenambahCatatan() {
       setClassValue(newTargetNote.selectedClass || 'Class not available');
       setSubjectValue(newTargetNote.subject || 'Subject not available');
       setTopicValue(newTargetNote.topic || 'Topic not available');
+      setEnhancedContent(newTargetNote.enhance || '');
     }
   }, [id, notes]);
   
@@ -158,11 +160,11 @@ export default function MenambahCatatan() {
         <SidebarDesktop notes={notes} />
 
         {/* Main Area */}
-        <div className="relative flex-1 overflow-hidden">
+        <div className="relative flex-1 overflow-auto">
           <div className="relative z-10 flex flex-col h-full p-6 text-white">
             <div className="flex items-center justify-center flex-grow">
               {/* Paper (bg-white) Container */}
-              <div className="bg-white w-[700px] max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-auto">
+              <div className="bg-white w-[700px] max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-y-auto border border-gray-300">
                 {notes.length > 0 ? (
                   <div>
                     {/* Header */}
@@ -233,10 +235,6 @@ export default function MenambahCatatan() {
                       </div>
                     )}
 
-                    <div className="mb-4 text-center">
-                      <span className="text-lg font-semibold text-black">Catatan</span>
-                    </div>
-
                     {/* Editable Note Content */}
                     <div className="space-y-8">
                       {pages.map((page, index) => (
@@ -244,17 +242,46 @@ export default function MenambahCatatan() {
                           key={index}
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                         >
+                          <h2 className="text-lg font-semibold text-black text-center">Catatan</h2>
                           <ReactQuill
                             ref={quillRef}
                             theme="snow"
                             value={page}
                             modules={modules}
-                            onChange={handleChange}
                             formats={formats}
                             style={{
                               height: "300px", 
                               minHeight: "500px", 
                               overflow: "hidden", 
+                              borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
+                              paddingTop: "20px",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Enhanced Content Section */}
+                    <div className="space-y-8">
+                      {pages.map((page, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
+                        >
+                          <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
+                          <ReactQuill
+                            ref={quillRef}
+                            theme="snow"
+                            value={enhancedContent}
+                            readOnly={true}
+                            modules={modules}
+                            formats={formats}
+                            style={{
+                              height: "300px", 
+                              minHeight: "500px", 
+                              overflow: "hidden", 
+                              borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
+                              paddingTop: "20px",
                             }}
                           />
                         </div>
