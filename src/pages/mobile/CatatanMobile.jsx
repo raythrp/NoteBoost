@@ -21,6 +21,7 @@ export default function CatatanMobile() {
   const [flashMessage, setFlashMessage] = useState("");
   const quillRef = useRef(null);
   const { user } = useAuth();
+  const hasMounted = useRef(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
   
