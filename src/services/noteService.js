@@ -19,7 +19,9 @@ const getNotes = async () => {
         const notes = response.data.map((item) => ({
             id: item.id,
             title: `${item.mata_pelajaran} - ${item.topik}`,
-            content: `${item.isi_catatan_asli}\n\n\nHasil Enchance\n${item.hasil_enhance}`,
+            content: item.hasil_enhance
+              ? `${item.isi_catatan_asli}\n\n\nHasil Enchance\n${item.hasil_enhance}`
+              : item.isi_catatan_asli,
             topic: item.topik,
             selectedClass: item.kelas,
             subject: item.mata_pelajaran,
@@ -111,9 +113,9 @@ const uploadImageAndSaveNote = async (
     const formData = new FormData();
     formData.append("image", file);
     formData.append("tanggal_waktu", new Date().toISOString());
-    formData.append("kelas", "kelas 10");
-    formData.append("mata_pelajaran", "ipa");
-    formData.append("topik", "newton");
+    formData.append("kelas", "");
+    formData.append("mata_pelajaran", "");
+    formData.append("topik", "");
     const response = await axios.post(
       `${BASE_URL}/image/extract-and-save/`,
       formData,
