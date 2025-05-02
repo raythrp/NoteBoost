@@ -24,7 +24,6 @@ export default function MenambahCatatan() {
   const { user } = useAuth();
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState(0);  // Store cursor position
 
   useEffect(() => {
     if (!targetNote) {
@@ -47,7 +46,7 @@ export default function MenambahCatatan() {
         await handleSave(value, "content"); // Save only if user typed
         setHasUserInput(false);  // Reset flag after save
       }
-    }, 3000));
+    }, 5000));
   };
 
   const handleEnhancedContentChange = (value) => {
@@ -113,6 +112,7 @@ export default function MenambahCatatan() {
 
   const handleSave = async () => {
     try {
+      setFlashMessage("is saving!")
       // 1. Memperbarui detail (kelas, mata pelajaran, topik)
       const detailsResponse = await axios.put(
         `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
@@ -149,7 +149,6 @@ export default function MenambahCatatan() {
 
       if (noteResponse.status === 200) {
         console.log("Note content updated successfully!");
-        setFlashMessage("saving!");
 
         await refetchNotes()
 
@@ -253,10 +252,6 @@ export default function MenambahCatatan() {
                       </div>
                     )}
 
-                    <div className="mb-4 text-center">
-                      <span className="text-lg font-semibold text-black">Catatan is {flashMessage || 'saved'}</span>
-                    </div>  
-
                     {/* Editable Note Content */}
                     <div className="space-y-8">
                       {pages.map((page, index) => (
@@ -264,7 +259,7 @@ export default function MenambahCatatan() {
                           key={index}
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                         >
-                          <h2 className="text-lg font-semibold text-black text-center">Catatan</h2>
+                          <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
                           <ReactQuill
                             ref={quillRef}
                             theme="snow"
@@ -272,6 +267,7 @@ export default function MenambahCatatan() {
                             modules={modules}
                             onChange={handleChange}
                             formats={formats}
+                            readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
                             style={{
                               height: "300px", 
                               minHeight: "500px", 
