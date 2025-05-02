@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from "../../components/desktop/NavbarDesktop";
 import SidebarDesktop from "../../components/desktop/SidebarDesktop";
 import { useNotes } from "../../contexts/NoteContext";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function MenambahCatatan() {
   const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
@@ -10,7 +12,7 @@ export default function MenambahCatatan() {
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
   const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
-
+  const quillRef = useRef(null);
 
   useEffect(() => {
     if (!targetNote) {
@@ -21,26 +23,41 @@ export default function MenambahCatatan() {
   }, [targetNote, navigate]);
 
   // Fungsi untuk mengupdate konten catatan
-  const handleContentChange = (e) => {
-    const newContent = e.target.value;
-    setContent(newContent);
+  const handleContentChange = (value) => {
+    setContent(value);
     setNotes((prevNotes) =>
       prevNotes.map((note, index) =>
-        index === 0 ? { ...note, content: newContent } : note
+        index === 0 ? { ...note, content: value } : note
       )
     );
   };
 
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ 'font': [] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'line-height': ['1', '1.5', '2', '2.5'] }],
+    ]
+  };
+
+  // Quill formats
+  const formats = [
+    'font', 'size', 'bold', 'italic', 'underline',
+    'color', 'background', 'align', 'list', 'bullet',
+    'indent', 'link', 'image', 'line-height'
+  ];
+
   // Fungsi untuk membagi teks menjadi halaman berdasarkan jumlah baris
   const splitIntoPages = (text, maxLinesPerPage) => {
-    const lines = text.split("\n"); // Pisahkan teks menjadi baris
-    const pages = [];
-
-    for (let i = 0; i < lines.length; i += maxLinesPerPage) {
-      pages.push(lines.slice(i, i + maxLinesPerPage).join("\n"));
-    }
-
-    return pages;
+    // For Quill, we'll treat the entire content as one page for now
+    // since it uses HTML content
+    return [text];
   };
 
   // Tentukan jumlah baris maksimum per halaman (misalnya, 25 baris per halaman)
@@ -71,7 +88,7 @@ export default function MenambahCatatan() {
                   <div>
                     {/* Header */}
                     <div className="flex justify-between mb-2 text-sm">
-                      <span>Catatan</span>
+                      <span>Notes</span>
                       <button className="font-semibold text-blue-500">
                         Enhance
                       </button>
@@ -82,7 +99,7 @@ export default function MenambahCatatan() {
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={targetNote?.selectedClass || "Kelas tidak tersedia"}
+                        value={targetNote?.selectedClass || "Class not available"}
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
@@ -92,7 +109,7 @@ export default function MenambahCatatan() {
                         type="text"
                         value={
                           targetNote?.subject ||
-                          "Mata pelajaran tidak tersedia"
+                          "Subject not available"
                         }
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
@@ -101,46 +118,45 @@ export default function MenambahCatatan() {
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={targetNote?.topic || "Topik tidak tersedia"}
+                        value={targetNote?.topic || "Topic not available"}
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
+
+                    {/* No separate formatting toolbar needed - Quill has its own toolbar */}
 
                     {/* Editable Note Content */}
                     <div className="space-y-8">
                       {pages.map((page, index) => (
                         <div
                           key={index}
-                          className="border border-gray-300 rounded-md p-4 shadow-md bg-white"
+                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                           style={{
                             height: "800px", // Tinggi halaman
                             overflow: "hidden", // Sembunyikan teks yang melebihi batas
                             pageBreakAfter: "always", // Pisahkan halaman
                           }}
                         >
-                          <textarea
-                            className="w-full h-full p-2 border-none resize-none outline-none"
+                          <ReactQuill
+                            ref={quillRef}
+                            theme="snow"
                             value={page}
-                            // onChange={(e) => {
-                            //   const updatedPages = [...pages];
-                            //   updatedPages[index] = e.target.value;
-                            //   setContent(updatedPages.join("\n"));
-                            // }}
-                            placeholder="Tulis catatan Anda di sini..."
+                            onChange={handleContentChange}
+                            modules={modules}
+                            formats={formats}
                             style={{
-                              height: "100%",
-                              overflow: "hidden", // Sembunyikan teks yang melebihi batas
-                              lineHeight: "1.5", // Tinggi baris
+                              height: "750px",
+                              overflow: "hidden",
                             }}
-                          ></textarea>
+                          />
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
                   <p className="text-center text-gray-500">
-                    Tidak ada catatan yang tersedia.
+                    No notes available.
                   </p>
                 )}
               </div>
