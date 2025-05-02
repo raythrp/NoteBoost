@@ -5,6 +5,8 @@ import SidebarDesktop from "../../components/desktop/SidebarDesktop";
 import { useNotes } from "../../contexts/NoteContext";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
 
 export default function MenambahCatatan() {
   const { notes } = useNotes(); // Ambil daftar catatan dari context
@@ -12,7 +14,12 @@ export default function MenambahCatatan() {
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
   const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+  const [classValue, setClassValue] = useState(targetNote?.selectedClass || "Class not available");
+  const [subjectValue, setSubjectValue] = useState(targetNote?.subject || "Subject not available");
+  const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
+  const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!targetNote) {
@@ -22,6 +29,16 @@ export default function MenambahCatatan() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
+  const jenjangToClasses = {
+    "SMP": ["Class 7", "Class 8", "Class 9"],
+    "SMA": ["Class 10", "Class 11", "Class 12"],
+    "Tidak Tersedia": [],
+  };
+
+  const getClassOptions = () => {
+    const jenjang = user?.jenjang || "Tidak Tersedia"; // Default to "Tidak Tersedia" if jenjang is not available
+    return jenjangToClasses[jenjang] || [];
+  };
   // Quill modules configuration
   const modules = {
     toolbar: [
@@ -50,6 +67,37 @@ export default function MenambahCatatan() {
 
   const maxLinesPerPage = 25;
   const pages = splitIntoPages(content, maxLinesPerPage);
+
+  const handleEdit = () => {
+    setIsEditable(!isEditable);
+  };
+
+  const handleSave = async () => {
+    try {
+      // Send a PUT request to update the note on the backend
+      const response = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Use the backend URL
+        {
+          kelas: classValue,
+          mata_pelajaran: subjectValue,
+          topik: topicValue,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Note updated successfully!");
+        setIsEditable(false);
+      }
+    } catch (error) {
+      console.error("Error updating note", error);
+      alert("Failed to update note!");
+    }
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-blue-500 to-blue-800">
@@ -83,28 +131,65 @@ export default function MenambahCatatan() {
 
                     {/* Input Fields */}
                     <div className="mb-4">
+                      <select
+                        value={classValue}
+                        onChange={(e) => setClassValue(e.target.value)}
+                        disabled={!isEditable}
+                        className="w-full p-2 bg-gray-100 border rounded"
+                      >
+                        <option value="Class not available" disabled>
+                          Class not available
+                        </option>
+                        {getClassOptions().map((classOption, index) => (
+                          <option key={index} value={classOption}>
+                            {classOption}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mb-4">
                       <input
                         type="text"
-                        value={targetNote?.selectedClass || "Class not available"}
-                        readOnly
+                        value={subjectValue}
+                        onChange={(e) => setSubjectValue(e.target.value)}
+                        readOnly={!isEditable}
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={targetNote?.subject || "Subject not available"}
-                        readOnly
+                        value={topicValue}
+                        onChange={(e) => setTopicValue(e.target.value)}
+                        readOnly={!isEditable}
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
                     </div>
+
+                    {/* Edit Button */}
                     <div className="mb-4">
-                      <input
-                        type="text"
-                        value={targetNote?.topic || "Topic not available"}
-                        readOnly
-                        className="w-full p-2 bg-gray-100 border rounded"
-                      />
+                      <button
+                        onClick={handleEdit}
+                        className="w-auto px-4 py-2 bg-blue-500 text-white rounded text-sm"
+                      >
+                        {isEditable ? "Cancel" : "Edit"}
+                      </button>
+                    </div>
+
+                    {/* Save Button (Visible only when editable) */}
+                    {isEditable && (
+                      <div className="mb-4">
+                        <button
+                          onClick={handleSave}
+                          className="w-auto px-4 py-2 bg-green-500 text-white rounded text-sm"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="mb-4 text-center">
+                      <span className="text-lg font-semibold text-black">Catatan</span>
                     </div>
 
                     {/* Editable Note Content */}
@@ -121,9 +206,9 @@ export default function MenambahCatatan() {
                             modules={modules}
                             formats={formats}
                             style={{
-                              height: "300px", // Allow Quill to grow with content
-                              minHeight: "600px", // Minimum height for the Quill editor
-                              overflow: "hidden", // Remove scrollbar within Quill
+                              height: "300px", 
+                              minHeight: "500px", 
+                              overflow: "hidden", 
                             }}
                           />
                         </div>
