@@ -14,6 +14,7 @@ function UploadPage() {
   const [uploadedFile, setUploadedFile] = useState(null)
   const [title, setTitle] = useState("")
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false); 
 
   const handleDragOver = (e) => {
     e.preventDefault()
