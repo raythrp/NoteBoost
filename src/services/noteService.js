@@ -20,7 +20,7 @@ const getNotes = async () => {
             id: item.id,
             title: `${item.mata_pelajaran} - ${item.topik}`,
             content: item.isi_catatan_asli || '',
-            enhance: item.hasil_enhance || '',
+            enhance: item.hasil_enhance || 'Silahkan Enhance Catatan Anda',
             topic: item.topik || '',
             selectedClass: item.kelas || '',
             subject: item.mata_pelajaran || '',
