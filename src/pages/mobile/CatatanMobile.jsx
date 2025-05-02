@@ -46,10 +46,10 @@ export default function CatatanMobile() {
   
     setTypingTimeout(setTimeout(async () => {
       if (hasUserInput) {
-        await handleSave(value, "content"); // Save only if user typed
+        await handleAutoSave(value, "content"); // Save only if user typed
         setHasUserInput(false);  // Reset flag after save
       }
-    }, 3000));
+    }, 5000));
   };
 
   const handleEnhancedContentChange = (value) => {
@@ -96,33 +96,10 @@ export default function CatatanMobile() {
     setIsEditable(!isEditable);
   };
 
-  const handleSave = async () => {
+  const handleAutoSave = async () => {
     try {
-    setFlashMessage("is saving!")
-      // Memastikan quillRef.current dan editor sudah terinisialisasi sebelum memanggil getEditor()
-    if (quillRef.current && quillRef.current.getEditor()) {
+      setFlashMessage("is saving!")
       const updatedContent = quillRef.current.getEditor().getContents();
-
-      // 1. Memperbarui detail (kelas, mata pelajaran, topik)
-      const detailsResponse = await axios.put(
-        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
-        {
-          kelas: classValue,
-          mata_pelajaran: subjectValue,
-          topik: topicValue,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
-          }
-        }
-      );
-
-      if (detailsResponse.status === 200) {
-        console.log("Details updated successfully!");
-      }
-
-      // 2. Memperbarui isi catatan (isi_catatan_asli dan tanggal_waktu)
       const noteResponse = await axios.put(
         `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,  // Endpoint untuk update isi catatan
         {
@@ -140,19 +117,41 @@ export default function CatatanMobile() {
         console.log("Note content updated successfully!");
 
         await refetchNotes()
-        setIsEditable(false);
-        // Clear message after 3 seconds
         setTimeout(() => {
           setFlashMessage("");
         }, 1000);
       }
-    } else {
-      console.error("Quill editor is not initialized properly.");
+    } catch (error) {
+      console.error("Error updating note", error);
+      alert("Failed to update note!");
     }
-  } catch (error) {
-    console.error("Error updating note", error);
-    alert("Failed to update note!");
-  }
+  };
+
+  const handleSave = async () => {
+    try {
+      const detailsResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
+        {
+          kelas: classValue,
+          mata_pelajaran: subjectValue,
+          topik: topicValue,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
+          }
+        }
+      );
+
+      if (detailsResponse.status === 200) {
+        console.log("Details updated successfully!");
+        await refetchNotes()
+        setIsEditable(false);
+      }
+    } catch (error) {
+      console.error("Error updating note", error);
+      alert("Failed to update note!");
+    }
   };
 
   // Function to update note content
