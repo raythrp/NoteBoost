@@ -22,16 +22,6 @@ export default function MenambahCatatan() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
-  // Fungsi untuk mengupdate konten catatan
-  // const handleContentChange = (value) => {
-  //   setContent(value);
-  //   setNotes((prevNotes) =>
-  //     prevNotes.map((note, index) =>
-  //       index === 0 ? { ...note, content: value } : note
-  //     )
-  //   );
-  // };
-
   // Quill modules configuration
   const modules = {
     toolbar: [
@@ -55,15 +45,10 @@ export default function MenambahCatatan() {
 
   // Fungsi untuk membagi teks menjadi halaman berdasarkan jumlah baris
   const splitIntoPages = (text, maxLinesPerPage) => {
-    // For Quill, we'll treat the entire content as one page for now
-    // since it uses HTML content
     return [text];
   };
 
-  // Tentukan jumlah baris maksimum per halaman (misalnya, 25 baris per halaman)
   const maxLinesPerPage = 25;
-
-  // Bagi konten menjadi halaman
   const pages = splitIntoPages(content, maxLinesPerPage);
 
   return (
@@ -83,7 +68,8 @@ export default function MenambahCatatan() {
         <div className="relative flex-1 overflow-hidden">
           <div className="relative z-10 flex flex-col h-full p-6 text-white">
             <div className="flex items-center justify-center flex-grow">
-              <div className="bg-white w-[700px] h-full max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-y-auto">
+              {/* Paper (bg-white) Container */}
+              <div className="bg-white w-[700px] max-h-[85%] rounded-md shadow-2xl p-8 text-black overflow-auto">
                 {notes.length > 0 ? (
                   <div>
                     {/* Header */}
@@ -107,10 +93,7 @@ export default function MenambahCatatan() {
                     <div className="mb-4">
                       <input
                         type="text"
-                        value={
-                          targetNote?.subject ||
-                          "Subject not available"
-                        }
+                        value={targetNote?.subject || "Subject not available"}
                         readOnly
                         className="w-full p-2 bg-gray-100 border rounded"
                       />
@@ -124,30 +107,23 @@ export default function MenambahCatatan() {
                       />
                     </div>
 
-                    {/* No separate formatting toolbar needed - Quill has its own toolbar */}
-
                     {/* Editable Note Content */}
                     <div className="space-y-8">
                       {pages.map((page, index) => (
                         <div
                           key={index}
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
-                          style={{
-                            height: "800px", // Tinggi halaman
-                            overflow: "hidden", // Sembunyikan teks yang melebihi batas
-                            pageBreakAfter: "always", // Pisahkan halaman
-                          }}
                         >
                           <ReactQuill
                             ref={quillRef}
                             theme="snow"
                             value={page}
-                            // onChange={handleContentChange}
                             modules={modules}
                             formats={formats}
                             style={{
-                              height: "750px",
-                              overflow: "hidden",
+                              height: "300px", // Allow Quill to grow with content
+                              minHeight: "600px", // Minimum height for the Quill editor
+                              overflow: "hidden", // Remove scrollbar within Quill
                             }}
                           />
                         </div>
