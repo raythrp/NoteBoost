@@ -16,6 +16,7 @@ export default function CatatanMobile() {
   const [classValue, setClassValue] = useState(targetNote?.selectedClass || "Class not available");
   const [subjectValue, setSubjectValue] = useState(targetNote?.subject || "Subject not available");
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
+  const [enhancedContent, setEnhancedContent] = useState(targetNote?.enhance || "");
   const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
   const { user } = useAuth();
@@ -38,6 +39,7 @@ export default function CatatanMobile() {
       setClassValue(newTargetNote.selectedClass || 'Class not available');
       setSubjectValue(newTargetNote.subject || 'Subject not available');
       setTopicValue(newTargetNote.topic || 'Topic not available');
+      setEnhancedContent(newTargetNote.enhance || '');
     }
   }, [id, notes]);
 
@@ -216,10 +218,6 @@ export default function CatatanMobile() {
               </div>
             )}
 
-            <div className="mb-4 text-center">
-              <span className="text-lg font-semibold text-black">Catatan</span>
-            </div>
-
             {/* Editable Note Content */}
             <div className="space-y-8">
               {pages.map((page, index) => (
@@ -232,6 +230,7 @@ export default function CatatanMobile() {
                     pageBreakAfter: "always",
                   }}
                 >
+                  <h2 className="text-lg font-semibold text-black text-center">Catatan</h2>
                   <ReactQuill
                     ref={index === 0 ? quillRef : null}
                     theme="snow"
@@ -243,8 +242,41 @@ export default function CatatanMobile() {
                       height: "300px", 
                       minHeight: "600px", 
                       overflow: "hidden", 
+                      borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
+                      paddingTop: "20px",
                     }}
                     placeholder="Write your notes here..."
+                  />
+                </div>
+              ))}
+            </div>
+            {/* Enhanced Content Section */}
+            <div className="space-y-8">
+              {pages.map((page, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
+                  style={{
+                    height: "600px",
+                    overflow: "hidden",
+                    pageBreakAfter: "always",
+                  }}
+                >
+                  <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
+                  <ReactQuill
+                    ref={index === 0 ? quillRef : null}
+                    theme="snow"
+                    value={enhancedContent}
+                    readOnly={true}
+                    modules={modules}
+                    formats={formats}
+                    style={{
+                      height: "300px", 
+                      minHeight: "600px", 
+                      overflow: "hidden", 
+                      borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
+                      paddingTop: "20px",
+                    }}
                   />
                 </div>
               ))}

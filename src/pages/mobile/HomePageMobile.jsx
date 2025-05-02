@@ -54,10 +54,10 @@ function HomePage() {
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
 
   return (
-    <main className="min-h-screen blue-gradient-bg">
+    <main className="min-h-screen bg-gradient-to-b from-blue-500 to-blue-800 pt-16">
       <Navbar />
 
-      <div className="relative mb-4 px-4">
+      <div className="relative mb-4 px-4 mt-6">
         <span className="absolute inset-y-0 left-6 flex items-center text-gray-400">
           <Search size={18} />
         </span>
