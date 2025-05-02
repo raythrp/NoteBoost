@@ -77,11 +77,46 @@ function HomePage() {
 
       {/* Page Indicator dinamis */}
       {totalPages > 1 && (
-        <PageIndicator
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+        <div className="flex flex-col items-center gap-2 mt-6">
+          {/* Arrow buttons on top */}
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                if (currentPage > 0) {
+                  setDirection(-1);
+                  setCurrentPage((prev) => prev - 1);
+                }
+              }}
+              disabled={currentPage === 0}
+              className="px-3 py-1 text-white bg-blue-600 rounded-full disabled:opacity-50"
+            >
+              ←
+            </button>
+
+            <button
+              onClick={() => {
+                if (currentPage < totalPages - 1) {
+                  setDirection(1);
+                  setCurrentPage((prev) => prev + 1);
+                }
+              }}
+              disabled={currentPage >= totalPages - 1}
+              className="px-3 py-1 text-white bg-blue-600 rounded-full disabled:opacity-50"
+            >
+              →
+            </button>
+          </div>
+
+          {/* Dots below the arrows */}
+          <PageIndicator
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(page) => {
+              setDirection(page > currentPage ? 1 : -1);
+              handlePageChange(page);
+            }}
+          />
+        </div>
       )}
 
       {/* Tombol tambah catatan */}
