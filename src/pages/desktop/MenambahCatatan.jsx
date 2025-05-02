@@ -23,14 +23,14 @@ export default function MenambahCatatan() {
   }, [targetNote, navigate]);
 
   // Fungsi untuk mengupdate konten catatan
-  const handleContentChange = (value) => {
-    setContent(value);
-    setNotes((prevNotes) =>
-      prevNotes.map((note, index) =>
-        index === 0 ? { ...note, content: value } : note
-      )
-    );
-  };
+  // const handleContentChange = (value) => {
+  //   setContent(value);
+  //   setNotes((prevNotes) =>
+  //     prevNotes.map((note, index) =>
+  //       index === 0 ? { ...note, content: value } : note
+  //     )
+  //   );
+  // };
 
   // Quill modules configuration
   const modules = {
@@ -142,7 +142,7 @@ export default function MenambahCatatan() {
                             ref={quillRef}
                             theme="snow"
                             value={page}
-                            onChange={handleContentChange}
+                            // onChange={handleContentChange}
                             modules={modules}
                             formats={formats}
                             style={{

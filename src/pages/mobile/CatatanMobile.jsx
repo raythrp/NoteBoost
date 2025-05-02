@@ -22,14 +22,14 @@ export default function CatatanMobile() {
   }, [targetNote, navigate]);
 
   // Function to update note content
-  const handleContentChange = (value) => {
-    setContent(value);
-    setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note.id === id ? { ...note, content: value } : note
-      )
-    );
-  };
+  // const handleContentChange = (value) => {
+  //   setContent(value);
+  //   setNotes((prevNotes) =>
+  //     prevNotes.map((note) =>
+  //       note.id === id ? { ...note, content: value } : note
+  //     )
+  //   );
+  // };
 
   // Quill modules configuration - simplified for mobile
   const modules = {
@@ -141,7 +141,7 @@ export default function CatatanMobile() {
                     ref={index === 0 ? quillRef : null}
                     theme="snow"
                     value={page}
-                    onChange={handleContentChange}
+                    // onChange={handleContentChange}
                     modules={modules}
                     formats={formats}
                     style={{
