@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/mobile/NavbarMobile";
@@ -6,15 +6,15 @@ import NoteCard from "../../components/NoteCard";
 import AddNoteButton from "../../components/mobile/AddNoteButtonMobile";
 import PageIndicator from "../../components/PageIndicator";
 import { useNotes } from "../../contexts/NoteContext";
+import { Search } from "lucide-react";
 
 function HomePage() {
   const navigate = useNavigate();
   const { notes, deleteNote, loading } = useNotes();
   const [currentPage, setCurrentPage] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 3;
-
-  const totalPages = Math.ceil((notes?.length || 0) / itemsPerPage);
 
   const handleEdit = (id) => {
     navigate(`/catatan/${id}`);
@@ -29,16 +29,46 @@ function HomePage() {
     setCurrentPage(page);
   };
 
-  const paginatedNotes = Array.isArray(notes)
-    ? notes
-        .slice()
-        .reverse()
-        .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
-    : [];
+  const filteredNotes = Array.isArray(notes)
+  ? notes.filter(note =>
+      note.title.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
+  
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(filteredNotes.length / itemsPerPage) - 1);
+    if (currentPage > maxPage) {
+      setCurrentPage(maxPage);
+    }
+  }, [filteredNotes.length]);
+
+  const paginatedNotes = filteredNotes
+    .slice()
+    .reverse()
+    .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+
+  const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
 
   return (
     <main className="min-h-screen blue-gradient-bg">
       <Navbar />
+
+      <div className="relative mb-4 px-4">
+        <span className="absolute inset-y-0 left-6 flex items-center text-gray-400">
+          <Search size={18} />
+        </span>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search notes by title..."
+          className="w-full pl-10 pr-4 py-2 text-sm border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </div>  
 
       <div className="container px-4 py-8 mx-auto content-container" style={{ userSelect: "none" }}>
         {loading ? (
