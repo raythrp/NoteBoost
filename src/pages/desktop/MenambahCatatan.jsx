@@ -9,7 +9,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 
 export default function MenambahCatatan() {
-  const { notes } = useNotes(); // Ambil daftar catatan dari context
+  const { notes, refetchNotes } = useNotes();// Ambil daftar catatan dari context
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
@@ -19,9 +19,12 @@ export default function MenambahCatatan() {
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
   const [enhancedContent, setEnhancedContent] = useState(targetNote?.enhance || "");
   const [isEditable, setIsEditable] = useState(false);
+  const [flashMessage, setFlashMessage] = useState("");
   const quillRef = useRef(null);
   const { user } = useAuth();
   const [typingTimeout, setTypingTimeout] = useState(null);
+  const [hasUserInput, setHasUserInput] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);  // Store cursor position
 
   useEffect(() => {
     if (!targetNote) {
@@ -32,16 +35,19 @@ export default function MenambahCatatan() {
   }, [targetNote, navigate]);
 
   const handleChange = (value) => {
-    setContent(value);  // Update state content
-
-    // Clear any previous timeout
+    setContent(value);
+    setHasUserInput(true); // Indicate this change came from user input
+  
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
-    // Set a new timeout to update after 5 seconds
+  
     setTypingTimeout(setTimeout(async () => {
-      await handleSave(value, "content");  // Call save function after 5 seconds
-    }, 5000)); // 5000 ms = 5 seconds
+      if (hasUserInput) {
+        await handleSave(value, "content"); // Save only if user typed
+        setHasUserInput(false);  // Reset flag after save
+      }
+    }, 3000));
   };
 
   const handleEnhancedContentChange = (value) => {
@@ -143,6 +149,14 @@ export default function MenambahCatatan() {
 
       if (noteResponse.status === 200) {
         console.log("Note content updated successfully!");
+        setFlashMessage("saving!");
+
+        await refetchNotes()
+
+        // Clear message after 3 seconds
+        setTimeout(() => {
+          setFlashMessage("");
+        }, 1000);
       }
     } catch (error) {
       console.error("Error updating note", error);
@@ -238,6 +252,10 @@ export default function MenambahCatatan() {
                         </button>
                       </div>
                     )}
+
+                    <div className="mb-4 text-center">
+                      <span className="text-lg font-semibold text-black">Catatan is {flashMessage || 'saved'}</span>
+                    </div>  
 
                     {/* Editable Note Content */}
                     <div className="space-y-8">
