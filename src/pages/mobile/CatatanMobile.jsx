@@ -1,14 +1,17 @@
-import React, { useState, useEffect  } from "react";
-import { FiMenu, FiArrowLeft } from "react-icons/fi"; // Ikon menu dari react-icons
+import React, { useState, useEffect, useRef } from "react";
+import { FiArrowLeft } from "react-icons/fi";
 import { useNotes } from "../../contexts/NoteContext";
-import { useNavigate, useParams  } from "react-router-dom"; // Import useNavigate
+import { useNavigate, useParams } from "react-router-dom";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function CatatanMobile() {
-  const { notes, setNotes } = useNotes(); // Ambil daftar catatan dari context
+  const { notes, setNotes } = useNotes();
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook untuk navigasi
+  const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
-  const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+  const [content, setContent] = useState(targetNote?.content || "");
+  const quillRef = useRef(null);
 
   useEffect(() => {
     if (!targetNote) {
@@ -18,38 +21,48 @@ export default function CatatanMobile() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
-  // Fungsi untuk mengupdate konten catatan
-  const handleContentChange = (e) => {
-    const newContent = e.target.value;
-    setContent(newContent);
-    setNotes((prevNotes) =>
-      prevNotes.map((note, index) =>
-        index === 0 ? { ...note, content: newContent } : note
-      )
-    );
+  // Function to update note content
+  // const handleContentChange = (value) => {
+  //   setContent(value);
+  //   setNotes((prevNotes) =>
+  //     prevNotes.map((note) =>
+  //       note.id === id ? { ...note, content: value } : note
+  //     )
+  //   );
+  // };
+
+  // Quill modules configuration - simplified for mobile
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'color': [] }],
+      [{ 'align': [] }],
+    ]
   };
 
-  // Fungsi untuk membagi teks menjadi halaman berdasarkan jumlah baris
+  // Quill formats
+  const formats = [
+    'bold', 'italic', 'underline',
+    'color', 'align', 'list', 'bullet'
+  ];
+  
+  // Function to split text into pages based on number of lines
   const splitIntoPages = (text, maxLinesPerPage) => {
-    const lines = text.split("\n"); // Pisahkan teks menjadi baris
-    const pages = [];
-
-    for (let i = 0; i < lines.length; i += maxLinesPerPage) {
-      pages.push(lines.slice(i, i + maxLinesPerPage).join("\n"));
-    }
-
-    return pages;
+    // For Quill content, we'll need a different approach since it's HTML
+    // Here we'll treat each Quill content as a separate page
+    // In a production app, you might want to implement more sophisticated page splitting
+    return [text];
   };
 
-  // Tentukan jumlah baris maksimum per halaman (misalnya, 20 baris per halaman untuk mobile)
+  // Maximum lines per page (for mobile)
   const maxLinesPerPage = 20;
 
-  // Bagi konten menjadi halaman
+  // Split content into pages
   const pages = splitIntoPages(content, maxLinesPerPage);
 
   const handleMenuClick = () => {
-    const userSlug = fullUser.name?.toLowerCase().replace(/\s+/g, "-");
-    navigate(`/${userSlug}`, { replace: true });
+    navigate('/');
   };
 
   const handleEnhanceClick = () => {
@@ -57,21 +70,21 @@ export default function CatatanMobile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-500 to-blue-800 p-4">
+    <div className="min-h-screen p-4 bg-gradient-to-b from-blue-500 to-blue-800">
       {/* Navbar */}
-      <div className="flex items-center bg-white p-4 shadow-md rounded-lg">
-        {/* Ikon Menu dan Teks Notes */}
+      <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
+        {/* Menu Icon and Notes Text */}
         <div className="flex items-center space-x-2">
-          <button onClick={handleMenuClick} className="text-gray-800 text-2xl">
-            < FiArrowLeft/>
+          <button onClick={handleMenuClick} className="text-2xl text-gray-800">
+            <FiArrowLeft />
           </button>
-          <h1 className="text-gray-800 text-lg font-bold">Notes</h1>
+          <h1 className="text-lg font-bold text-gray-800">Notes</h1>
         </div>
 
-        {/* Tombol Enhance */}
+        {/* Enhance Button */}
         <button
           onClick={handleEnhanceClick}
-          className="text-blue-500 font-semibold ml-auto"
+          className="ml-auto font-semibold text-blue-500"
         >
           Enhance
         </button>
@@ -83,32 +96,32 @@ export default function CatatanMobile() {
           <div>
             {/* Input Fields */}
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Kelas</label>
+              <label className="block mb-1 text-sm font-medium">Class</label>
               <input
                 type="text"
-                value={targetNote?.selectedClass || "Kelas tidak tersedia"}
+                value={targetNote?.selectedClass || "Class not available"}
                 readOnly
-                className="w-full p-2 rounded border bg-gray-100"
+                className="w-full p-2 bg-gray-100 border rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                Mata Pelajaran
+              <label className="block mb-1 text-sm font-medium">
+                Subject
               </label>
               <input
                 type="text"
-                value={targetNote?.subject || "Mata pelajaran tidak tersedia"}
+                value={targetNote?.subject || "Subject not available"}
                 readOnly
-                className="w-full p-2 rounded border bg-gray-100"
+                className="w-full p-2 bg-gray-100 border rounded"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Topik</label>
+              <label className="block mb-1 text-sm font-medium">Topic</label>
               <input
                 type="text"
-                value={targetNote.topic || "Topik tidak tersedia"}
+                value={targetNote?.topic || "Topic not available"}
                 readOnly
-                className="w-full p-2 rounded border bg-gray-100"
+                className="w-full p-2 bg-gray-100 border rounded"
               />
             </div>
 
@@ -117,35 +130,33 @@ export default function CatatanMobile() {
               {pages.map((page, index) => (
                 <div
                   key={index}
-                  className="border border-gray-300 rounded-md p-4 shadow-md bg-white"
+                  className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                   style={{
-                    height: "600px", // Tinggi halaman untuk mobile
-                    overflow: "hidden", // Sembunyikan teks yang melebihi batas
-                    pageBreakAfter: "always", // Pisahkan halaman
+                    height: "600px",
+                    overflow: "hidden",
+                    pageBreakAfter: "always",
                   }}
                 >
-                  <textarea
-                    className="w-full h-full p-2 border-none resize-none outline-none"
+                  <ReactQuill
+                    ref={index === 0 ? quillRef : null}
+                    theme="snow"
                     value={page}
-                    // onChange={(e) => {
-                    //   const updatedPages = [...pages];
-                    //   updatedPages[index] = e.target.value;
-                    //   setContent(updatedPages.join("\n"));
-                    // }}
-                    placeholder="Tulis catatan Anda di sini..."
+                    // onChange={handleContentChange}
+                    modules={modules}
+                    formats={formats}
                     style={{
-                      height: "100%",
-                      overflow: "hidden", // Sembunyikan teks yang melebihi batas
-                      lineHeight: "1.5", // Tinggi baris
+                      height: "550px",
+                      overflow: "hidden",
                     }}
-                  ></textarea>
+                    placeholder="Write your notes here..."
+                  />
                 </div>
               ))}
             </div>
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            Tidak ada catatan yang tersedia.
+            No notes available.
           </p>
         )}
       </div>
