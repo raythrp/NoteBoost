@@ -20,6 +20,7 @@ export default function MenambahCatatan() {
   const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
   const { user } = useAuth();
+  const [typingTimeout, setTypingTimeout] = useState(null);
 
   useEffect(() => {
     if (!targetNote) {
@@ -28,6 +29,19 @@ export default function MenambahCatatan() {
     }
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
+
+  const handleChange = (value) => {
+    setContent(value);  // Update state content
+
+    // Clear any previous timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    // Set a new timeout to update after 5 seconds
+    setTypingTimeout(setTimeout(async () => {
+      await handleSave(value);  // Call save function after 5 seconds
+    }, 5000)); // 5000 ms = 5 seconds
+  };
 
   useEffect(() => {
     const newTargetNote = notes.find(note => note.id === id); // Find the new note
@@ -38,6 +52,7 @@ export default function MenambahCatatan() {
       setTopicValue(newTargetNote.topic || 'Topic not available');
     }
   }, [id, notes]);
+  
   useEffect(() => {
       console.log("targetNote:", targetNote); // Check if topic is being passed correctly
     }, [targetNote]);
@@ -86,9 +101,9 @@ export default function MenambahCatatan() {
 
   const handleSave = async () => {
     try {
-      // Send a PUT request to update the note on the backend
-      const response = await axios.put(
-        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Use the backend URL
+      // 1. Memperbarui detail (kelas, mata pelajaran, topik)
+      const detailsResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
         {
           kelas: classValue,
           mata_pelajaran: subjectValue,
@@ -96,14 +111,32 @@ export default function MenambahCatatan() {
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
           }
         }
       );
 
-      if (response.status === 200) {
-        alert("Note updated successfully!");
-        setIsEditable(false);
+      if (detailsResponse.status === 200) {
+        console.log("Details updated successfully!");
+      }
+
+      // 2. Memperbarui isi catatan (isi_catatan_asli dan tanggal_waktu)
+      const updatedContent = quillRef.current.getEditor().getContents();
+      const noteResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,  // Endpoint untuk update isi catatan
+        {
+          tanggal_waktu: new Date().toISOString(), // Atur tanggal dan waktu saat ini
+          isi_catatan_asli: updatedContent, // Isi catatan yang baru
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
+          }
+        }
+      );
+
+      if (noteResponse.status === 200) {
+        console.log("Note content updated successfully!");
       }
     } catch (error) {
       console.error("Error updating note", error);
@@ -216,6 +249,7 @@ export default function MenambahCatatan() {
                             theme="snow"
                             value={page}
                             modules={modules}
+                            onChange={handleChange}
                             formats={formats}
                             style={{
                               height: "300px", 
