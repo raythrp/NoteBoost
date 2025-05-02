@@ -49,7 +49,7 @@ export default function MenambahCatatan() {
   
     setTypingTimeout(setTimeout(async () => {
       if (hasUserInput) {
-        await handleSave(value, "content"); // Save only if user typed
+        await handleAutoSave(value, "content"); // Save only if user typed
         setHasUserInput(false);  // Reset flag after save
       }
     }, 5000));
@@ -116,29 +116,9 @@ export default function MenambahCatatan() {
     setIsEditable(!isEditable);
   };
 
-  const handleSave = async () => {
+  const handleAutoSave = async () => {
     try {
       setFlashMessage("is saving!")
-      // 1. Memperbarui detail (kelas, mata pelajaran, topik)
-      const detailsResponse = await axios.put(
-        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
-        {
-          kelas: classValue,
-          mata_pelajaran: subjectValue,
-          topik: topicValue,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
-          }
-        }
-      );
-
-      if (detailsResponse.status === 200) {
-        console.log("Details updated successfully!");
-      }
-
-      // 2. Memperbarui isi catatan (isi_catatan_asli dan tanggal_waktu)
       const updatedContent = quillRef.current.getEditor().getContents();
       const noteResponse = await axios.put(
         `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,  // Endpoint untuk update isi catatan
@@ -157,11 +137,36 @@ export default function MenambahCatatan() {
         console.log("Note content updated successfully!");
 
         await refetchNotes()
-
-        // Clear message after 3 seconds
         setTimeout(() => {
           setFlashMessage("");
         }, 1000);
+      }
+    } catch (error) {
+      console.error("Error updating note", error);
+      alert("Failed to update note!");
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const detailsResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
+        {
+          kelas: classValue,
+          mata_pelajaran: subjectValue,
+          topik: topicValue,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
+          }
+        }
+      );
+
+      if (detailsResponse.status === 200) {
+        console.log("Details updated successfully!");
+        await refetchNotes()
+        setIsEditable(false);
       }
     } catch (error) {
       console.error("Error updating note", error);
