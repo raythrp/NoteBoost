@@ -39,6 +39,12 @@ export default function CatatanMobile() {
 
   const handleChange = (value) => {
     setContent(value);
+    if (!hasMounted.current) {
+      // Ignore Quill's initial load change
+      hasMounted.current = true;
+      return;
+    }
+    
     setHasUserInput(true); // Indicate this change came from user input
   
     if (typingTimeout) {
