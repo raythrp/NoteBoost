@@ -8,7 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 
 export default function CatatanMobile() {
-  const { notes } = useNotes();
+  const { notes, refetchNotes } = useNotes();
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
@@ -18,8 +18,12 @@ export default function CatatanMobile() {
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
   const [enhancedContent, setEnhancedContent] = useState(targetNote?.enhance || "");
   const [isEditable, setIsEditable] = useState(false);
+  const [flashMessage, setFlashMessage] = useState("");
   const quillRef = useRef(null);
   const { user } = useAuth();
+  const [typingTimeout, setTypingTimeout] = useState(null);
+  const [hasUserInput, setHasUserInput] = useState(false);
+  
   useEffect(() => {
     console.log("targetNote:", targetNote); // Check if topic is being passed correctly
   }, [targetNote]);
@@ -32,6 +36,26 @@ export default function CatatanMobile() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
+  const handleChange = (value) => {
+    setContent(value);
+    setHasUserInput(true); // Indicate this change came from user input
+  
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+  
+    setTypingTimeout(setTimeout(async () => {
+      if (hasUserInput) {
+        await handleSave(value, "content"); // Save only if user typed
+        setHasUserInput(false);  // Reset flag after save
+      }
+    }, 3000));
+  };
+
+  const handleEnhancedContentChange = (value) => {
+    setEnhancedContent(value);  // Update state enhanced content
+  };
+
   useEffect(() => {
     const newTargetNote = notes.find(note => note.id === id);
     if (newTargetNote) {
@@ -43,11 +67,25 @@ export default function CatatanMobile() {
     }
   }, [id, notes]);
 
+  useEffect(() => {
+        console.log("targetNote:", targetNote); // Check if topic is being passed correctly
+  }, [targetNote]);
+
+  useEffect(() => {
+    if (quillRef.current) {
+      console.log('Quill editor initialized');
+    } else {
+      console.log('Quill editor is not initialized yet');
+    }
+  }, [quillRef]);
+
+  
   const jenjangToClasses = {
     "SMP": ["Class 7", "Class 8", "Class 9"],
     "SMA": ["Class 10", "Class 11", "Class 12"],
     "Tidak Tersedia": [],
   };
+
 
   const getClassOptions = () => {
     const jenjang = user?.jenjang || "Tidak Tersedia"; // Default to "Tidak Tersedia" if jenjang is not available
@@ -60,9 +98,13 @@ export default function CatatanMobile() {
 
   const handleSave = async () => {
     try {
-      // Send a PUT request to update the note on the backend
-      const response = await axios.put(
-        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Use the backend URL
+      // Memastikan quillRef.current dan editor sudah terinisialisasi sebelum memanggil getEditor()
+    if (quillRef.current && quillRef.current.getEditor()) {
+      const updatedContent = quillRef.current.getEditor().getContents();
+
+      // 1. Memperbarui detail (kelas, mata pelajaran, topik)
+      const detailsResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-details`,  // Endpoint untuk update detail
         {
           kelas: classValue,
           mata_pelajaran: subjectValue,
@@ -70,19 +112,47 @@ export default function CatatanMobile() {
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token in the Authorization header
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
           }
         }
       );
 
-      if (response.status === 200) {
-        alert("Note updated successfully!");
-        setIsEditable(false);
+      if (detailsResponse.status === 200) {
+        console.log("Details updated successfully!");
       }
-    } catch (error) {
-      console.error("Error updating note", error);
-      alert("Failed to update note!");
+
+      // 2. Memperbarui isi catatan (isi_catatan_asli dan tanggal_waktu)
+      const noteResponse = await axios.put(
+        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,  // Endpoint untuk update isi catatan
+        {
+          tanggal_waktu: new Date().toISOString(), // Atur tanggal dan waktu saat ini
+          isi_catatan_asli: updatedContent, // Isi catatan yang baru
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
+          }
+        }
+      );
+
+      if (noteResponse.status === 200) {
+        console.log("Note content updated successfully!");
+        setFlashMessage("saving!");
+
+        await refetchNotes()
+
+        // Clear message after 3 seconds
+        setTimeout(() => {
+          setFlashMessage("");
+        }, 1000);
+      }
+    } else {
+      console.error("Quill editor is not initialized properly.");
     }
+  } catch (error) {
+    console.error("Error updating note", error);
+    alert("Failed to update note!");
+  }
   };
 
   // Function to update note content
@@ -232,10 +302,10 @@ export default function CatatanMobile() {
                 >
                   <h2 className="text-lg font-semibold text-black text-center">Catatan</h2>
                   <ReactQuill
-                    ref={index === 0 ? quillRef : null}
+                    ref= {quillRef}
                     theme="snow"
-                    value={page}
-                    // onChange={handleContentChange}
+                    value={content}
+                    onChange={handleChange}
                     modules={modules}
                     formats={formats}
                     style={{
@@ -264,9 +334,10 @@ export default function CatatanMobile() {
                 >
                   <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                   <ReactQuill
-                    ref={index === 0 ? quillRef : null}
+                    
                     theme="snow"
                     value={enhancedContent}
+                    onChange={handleEnhancedContentChange}
                     readOnly={true}
                     modules={modules}
                     formats={formats}
