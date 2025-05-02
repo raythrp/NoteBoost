@@ -1,27 +1,37 @@
-"use client"
+// "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { X, Upload, ChevronDown } from 'react-feather';
 import Navbar from "../../components/mobile/NavbarMobile"
 import Button from "../../components/Button"
 import Card from "../../components/Card"
 import Input from "../../components/Input"
+import TextArea from "../../components/Textarea";
 import { useNotes } from "../../contexts/NoteContext"
 import { uploadImageAndSaveNote } from "../../services/noteService";
 import { useAuth } from "../../contexts/AuthContext";
 
 function AddNotePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { addNote } = useNotes();
   const [topic, setTopic] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [subject, setSubject] = useState('');
+  const [content, setContent] = useState('');
+  const [showUploadModal, setShowUploadModal] = useState(false);  // Add this line
   const { user } = useAuth();
+
+  useEffect(() => {
+      if (searchParams.get("upload") === "true") {
+        setShowUploadModal(true);
+      }
+    }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const note = await addNote(topic, selectedClass, subject);
+    const note = await addNote(topic, selectedClass, subject, content);
     // Note id belom ada
     navigate(`/catatan/${note.id}`);
   }
@@ -93,6 +103,7 @@ function AddNotePage() {
                 required
               />
             </div>
+
             {content ? (
               <>
                 {/* Extracted Text field */}
