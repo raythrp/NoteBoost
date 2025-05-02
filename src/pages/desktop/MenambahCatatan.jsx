@@ -24,6 +24,7 @@ export default function MenambahCatatan() {
   const { user } = useAuth();
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
+  const hasMounted = useRef(false);
 
   useEffect(() => {
     if (!targetNote) {
@@ -35,6 +36,11 @@ export default function MenambahCatatan() {
 
   const handleChange = (value) => {
     setContent(value);
+    if (!hasMounted.current) {
+      // Ignore Quill's initial load change
+      hasMounted.current = true;
+      return;
+    }
     setHasUserInput(true); // Indicate this change came from user input
   
     if (typingTimeout) {

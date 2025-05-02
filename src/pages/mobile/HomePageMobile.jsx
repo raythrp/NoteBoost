@@ -54,7 +54,7 @@ function HomePage() {
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-500 to-blue-800 pt-16">
+    <main className="min-h-screen blue-gradient-bg from-blue-500 to-blue-800">
       <Navbar />
 
       <div className="relative mb-4 px-4 mt-6">

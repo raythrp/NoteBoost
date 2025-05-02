@@ -20,6 +20,8 @@ export default function CatatanMobile() {
   const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
   const { user } = useAuth();
+  const hasMounted = useRef(false);
+  
   useEffect(() => {
     console.log("targetNote:", targetNote); // Check if topic is being passed correctly
   }, [targetNote]);
