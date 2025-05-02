@@ -57,7 +57,7 @@ function HomePage() {
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">
       <Navbar />
 
-      <div className="relative mb-4 max-w-md mx-auto">
+      <div className="relative mb-4 max-w-md mx-auto mt-6">
         <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
           <Search size={18} />
         </span>
