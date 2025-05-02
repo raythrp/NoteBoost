@@ -29,6 +29,18 @@ export default function MenambahCatatan() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
+  useEffect(() => {
+    const newTargetNote = notes.find(note => note.id === id); // Find the new note
+    if (newTargetNote) {
+      setContent(newTargetNote.content || ''); // Update content
+      setClassValue(newTargetNote.selectedClass || 'Class not available');
+      setSubjectValue(newTargetNote.subject || 'Subject not available');
+      setTopicValue(newTargetNote.topic || 'Topic not available');
+    }
+  }, [id, notes]);
+  useEffect(() => {
+      console.log("targetNote:", targetNote); // Check if topic is being passed correctly
+    }, [targetNote]);
   const jenjangToClasses = {
     "SMP": ["Class 7", "Class 8", "Class 9"],
     "SMA": ["Class 10", "Class 11", "Class 12"],

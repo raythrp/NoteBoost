@@ -19,6 +19,9 @@ export default function CatatanMobile() {
   const [isEditable, setIsEditable] = useState(false);
   const quillRef = useRef(null);
   const { user } = useAuth();
+  useEffect(() => {
+    console.log("targetNote:", targetNote); // Check if topic is being passed correctly
+  }, [targetNote]);
 
   useEffect(() => {
     if (!targetNote) {
@@ -27,6 +30,16 @@ export default function CatatanMobile() {
     }
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
+
+  useEffect(() => {
+    const newTargetNote = notes.find(note => note.id === id);
+    if (newTargetNote) {
+      setContent(newTargetNote.content || '');
+      setClassValue(newTargetNote.selectedClass || 'Class not available');
+      setSubjectValue(newTargetNote.subject || 'Subject not available');
+      setTopicValue(newTargetNote.topic || 'Topic not available');
+    }
+  }, [id, notes]);
 
   const jenjangToClasses = {
     "SMP": ["Class 7", "Class 8", "Class 9"],
