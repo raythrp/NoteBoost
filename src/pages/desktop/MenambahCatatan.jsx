@@ -40,8 +40,12 @@ export default function MenambahCatatan() {
     }
     // Set a new timeout to update after 5 seconds
     setTypingTimeout(setTimeout(async () => {
-      await handleSave(value);  // Call save function after 5 seconds
+      await handleSave(value, "content");  // Call save function after 5 seconds
     }, 5000)); // 5000 ms = 5 seconds
+  };
+
+  const handleEnhancedContentChange = (value) => {
+    setEnhancedContent(value);  // Update state enhanced content
   };
 
   useEffect(() => {
@@ -246,7 +250,7 @@ export default function MenambahCatatan() {
                           <ReactQuill
                             ref={quillRef}
                             theme="snow"
-                            value={page}
+                            value={content}
                             modules={modules}
                             onChange={handleChange}
                             formats={formats}
@@ -271,9 +275,9 @@ export default function MenambahCatatan() {
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                           <ReactQuill
-                            ref={quillRef}
                             theme="snow"
                             value={enhancedContent}
+                            onChange={handleEnhancedContentChange} 
                             readOnly={true}
                             modules={modules}
                             formats={formats}

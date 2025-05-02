@@ -268,7 +268,6 @@ export default function CatatanMobile() {
                     theme="snow"
                     value={enhancedContent}
                     readOnly={true}
-                    // onChange={handleContentChange}
                     modules={modules}
                     formats={formats}
                     style={{
