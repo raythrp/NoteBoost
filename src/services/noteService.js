@@ -19,9 +19,8 @@ const getNotes = async () => {
         const notes = response.data.map((item) => ({
             id: item.id,
             title: `${item.mata_pelajaran} - ${item.topik}`,
-            content: item.hasil_enhance
-              ? `${item.isi_catatan_asli}\n\n\nHasil Enchance\n${item.hasil_enhance}`
-              : item.isi_catatan_asli,
+            content: item.isi_catatan_asli || '',
+            enhance: item.hasil_enhance || '',
             topic: item.topik || '',
             selectedClass: item.kelas || '',
             subject: item.mata_pelajaran || '',
