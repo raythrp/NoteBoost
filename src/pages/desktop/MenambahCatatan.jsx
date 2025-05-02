@@ -248,6 +248,7 @@ export default function MenambahCatatan() {
                             theme="snow"
                             value={page}
                             modules={modules}
+                            onChange={handleChange}
                             formats={formats}
                             style={{
                               height: "300px", 
