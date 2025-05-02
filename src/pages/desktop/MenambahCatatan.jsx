@@ -151,7 +151,7 @@ export default function MenambahCatatan() {
         console.log("Note content updated successfully!");
 
         await refetchNotes()
-
+        setIsEditable(false);
         // Clear message after 3 seconds
         setTimeout(() => {
           setFlashMessage("");

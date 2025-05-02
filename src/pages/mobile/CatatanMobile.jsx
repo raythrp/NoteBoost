@@ -98,6 +98,7 @@ export default function CatatanMobile() {
 
   const handleSave = async () => {
     try {
+    setFlashMessage("is saving!")
       // Memastikan quillRef.current dan editor sudah terinisialisasi sebelum memanggil getEditor()
     if (quillRef.current && quillRef.current.getEditor()) {
       const updatedContent = quillRef.current.getEditor().getContents();
@@ -137,10 +138,9 @@ export default function CatatanMobile() {
 
       if (noteResponse.status === 200) {
         console.log("Note content updated successfully!");
-        setFlashMessage("saving!");
 
         await refetchNotes()
-
+        setIsEditable(false);
         // Clear message after 3 seconds
         setTimeout(() => {
           setFlashMessage("");
@@ -300,7 +300,7 @@ export default function CatatanMobile() {
                     pageBreakAfter: "always",
                   }}
                 >
-                  <h2 className="text-lg font-semibold text-black text-center">Catatan</h2>
+                  <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
                   <ReactQuill
                     ref= {quillRef}
                     theme="snow"
@@ -308,6 +308,7 @@ export default function CatatanMobile() {
                     onChange={handleChange}
                     modules={modules}
                     formats={formats}
+                    readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
                     style={{
                       height: "300px", 
                       minHeight: "600px", 
