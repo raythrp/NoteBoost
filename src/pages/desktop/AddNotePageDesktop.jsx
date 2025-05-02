@@ -146,7 +146,7 @@ function AddNotePage() {
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => navigate("/")}
+                onClick={() => navigate('/catatan/${note.id}')}
               >
                 Cancel
               </Button>
