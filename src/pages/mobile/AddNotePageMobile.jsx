@@ -157,7 +157,7 @@ function AddNotePage() {
   )
 }
 
-function UploadModal({ onClose, setContent }) {
+function UploadModal({ onClose, setContent}) {
   const navigate = useNavigate();
   const { addNote } = useNotes();
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -188,11 +188,12 @@ function UploadModal({ onClose, setContent }) {
       // Call the uploadImageAndSaveNote function passing necessary parameters
       const note = await uploadImageAndSaveNote(
         uploadedFile,
-        title,
+        uploadedFile.name,
         "",
         "",
-        ""
+        "",
       );
+      
 
       if (note) {
         setContent(note.extractedText);
@@ -242,20 +243,6 @@ function UploadModal({ onClose, setContent }) {
               <p className="mb-4 text-center text-green-600">
                 File selected: {uploadedFile.name}
               </p>
-              <div className="mb-4">
-                <label
-                  htmlFor="upload-title"
-                  className="block mb-1 text-sm font-medium"
-                >
-                  Title
-                </label>
-                <Input
-                  id="upload-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={uploadedFile.name}
-                />
-              </div>
               <button
                 className="bg-[#215273] text-white w-full h-[52px] text-xl rounded-md"
                 onClick={handleUploadComplete}
