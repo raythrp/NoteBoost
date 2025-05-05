@@ -112,28 +112,33 @@ export default function MenambahCatatan() {
 
   const handleAutoSave = async () => {
     try {
-      setFlashMessage("is saving!")
-      const updatedContent = quillRef.current.getEditor().getContents();
-      const noteResponse = await axios.put(
-        `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,  // Endpoint untuk update isi catatan
-        {
-          tanggal_waktu: new Date().toISOString(), // Atur tanggal dan waktu saat ini
-          isi_catatan_asli: updatedContent, // Isi catatan yang baru
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Sertakan token di header Authorization
+      setFlashMessage("is saving!");
+      if (quillRef.current) {
+        const updatedContent = quillRef.current.getEditor().getContents();
+  
+        const noteResponse = await axios.put(
+          `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,
+          {
+            tanggal_waktu: new Date().toISOString(),
+            isi_catatan_asli: updatedContent,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            }
           }
+        );
+  
+        if (noteResponse.status === 200) {
+          console.log("Note content updated successfully!");
+  
+          await refetchNotes();
+          setTimeout(() => {
+            setFlashMessage("");
+          }, 1000);
         }
-      );
-
-      if (noteResponse.status === 200) {
-        console.log("Note content updated successfully!");
-
-        await refetchNotes()
-        setTimeout(() => {
-          setFlashMessage("");
-        }, 1000);
+      } else {
+        console.error("Quill editor is not available");
       }
     } catch (error) {
       console.error("Error updating note", error);

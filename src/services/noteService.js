@@ -112,9 +112,9 @@ const uploadImageAndSaveNote = async (
     const formData = new FormData();
     formData.append("image", file);
     formData.append("tanggal_waktu", new Date().toISOString());
-    formData.append("kelas", "null");
-    formData.append("mata_pelajaran", "null");
-    formData.append("topik", "null");
+    formData.append("kelas", kelas || "null");
+    formData.append("mata_pelajaran", mata_pelajaran || "null");
+    formData.append("topik", topik || "null");
     const response = await axios.post(
       `${BASE_URL}/image/extract-and-save/`,
       formData,
