@@ -166,7 +166,7 @@ function AddNotePage() {
   );
 }
 
-function UploadModal({ onClose, setContent }) {
+function UploadModal({ onClose, setContent}) {
   const navigate = useNavigate();
   const { addNote } = useNotes();
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -197,10 +197,10 @@ function UploadModal({ onClose, setContent }) {
       // Call the uploadImageAndSaveNote function passing necessary parameters
       const note = await uploadImageAndSaveNote(
         uploadedFile,
-        title,
+        uploadedFile.name,
         "",
         "",
-        ""
+        "",
       );
 
       if (note) {
@@ -210,17 +210,6 @@ function UploadModal({ onClose, setContent }) {
         setError("Failed to extract text or save the note.");
         onClose();
       }
-
-      // // If note is successfully saved, navigate to catatan page
-      // if (note) {
-      //   console.log(
-      //     `[${new Date().toLocaleTimeString()}] Note berhasil disimpan:`,
-      //     note
-      //   );
-      //   navigate("/catatan"); // Navigate to the notes page if saved successfully
-      // } else {
-      //   setError("Failed to extract text or save the note.");
-      // }
     } catch (err) {
       console.error("Error during image upload and note save:", err);
       setError("An error occurred while processing the image.");
@@ -251,20 +240,6 @@ function UploadModal({ onClose, setContent }) {
               <p className="mb-4 text-center text-green-600">
                 File selected: {uploadedFile.name}
               </p>
-              <div className="mb-4">
-                <label
-                  htmlFor="upload-title"
-                  className="block mb-1 text-sm font-medium"
-                >
-                  Title
-                </label>
-                <Input
-                  id="upload-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={uploadedFile.name}
-                />
-              </div>
               <button
                 className="bg-[#215273] text-white w-full h-[52px] text-xl rounded-md"
                 onClick={handleUploadComplete}

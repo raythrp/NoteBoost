@@ -36,6 +36,13 @@ function HomePage() {
   : [];
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); 
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
   
