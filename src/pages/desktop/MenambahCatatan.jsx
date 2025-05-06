@@ -7,13 +7,14 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+const { convert } = require("quill-delta-to-html");
 
 export default function MenambahCatatan() {
-  const { notes, refetchNotes } = useNotes();// Ambil daftar catatan dari context
+  const { notes, refetchNotes } = useNotes();
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
-  const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+  const [content, setContent] = useState(targetNote?.content || ""); 
   const [classValue, setClassValue] = useState(targetNote?.selectedClass || "Class not available");
   const [subjectValue, setSubjectValue] = useState(targetNote?.subject || "Subject not available");
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
@@ -21,6 +22,7 @@ export default function MenambahCatatan() {
   const [isEditable, setIsEditable] = useState(false);
   const [flashMessage, setFlashMessage] = useState("");
   const quillRef = useRef(null);
+  const quillEnhancedRef = useRef(null);
   const { user } = useAuth();
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
@@ -33,6 +35,59 @@ export default function MenambahCatatan() {
     }
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
+
+  const handleEnhance = async () => {
+    const updatedContent = quillRef.current.getEditor().getContents();
+    const updatedContentHTML = quillRef.current.root.innerHTML;
+  
+    const updateResponse = await axios.put(
+      `/api/history/${id}`,
+      {
+        tanggal_waktu: new Date().toISOString(),
+        isi_catatan_asli: updatedContent,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  
+    if (updateResponse.status === 200) {
+      console.log("Catatan berhasil diperbarui!");
+
+      const enhanceResponse = await axios.post(
+        `/api/history/${id}/enhance`,
+        {
+          htmlContent: updatedContentHTML,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (enhanceResponse.status === 200) {
+        const { hasil_enhance } = enhanceResponse.data;
+  
+        const enhancedDelta = quillRef.current.clipboard.convert(hasil_enhance);
+        quillRef.current.setContents(enhancedDelta); 
+  
+        await axios.put(
+          `/api/history/${id}/update-enhanced`,
+          {
+            hasil_enhance: enhancedDelta,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      }
+    }
+  };
 
   const handleChange = (value) => {
     setContent(value);
@@ -203,7 +258,7 @@ export default function MenambahCatatan() {
                     {/* Header */}
                     <div className="flex justify-between mb-2 text-sm">
                       <span>Notes</span>
-                      <button className="font-semibold text-blue-500">
+                      <button className="font-semibold text-blue-500" onClick={handleEnhance}>
                         Enhance
                       </button>
                     </div>
@@ -305,6 +360,7 @@ export default function MenambahCatatan() {
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                           <ReactQuill
+                            ref={quillEnhancedRef}
                             theme="snow"
                             value={enhancedContent}
                             onChange={handleEnhancedContentChange} 
