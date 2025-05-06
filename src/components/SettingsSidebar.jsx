@@ -17,6 +17,8 @@ export default function SettingsSidebar({
   const [error, setError] = useState("")
   const handleLogout = () => {
     logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user"); 
     window.location.href = "/login";
   };
   const [username, setUsername] = useState(user?.name || "Cacing Pintar");
@@ -207,6 +209,16 @@ export default function SettingsSidebar({
               className="bg-white text-blue-900 px-4 py-1 rounded hover:bg-gray-100">
                 Log Out
               </button>
+            </div>
+
+            {/* Link Youtube */}
+            <div className="flex justify-center items-center w-full pt-4">
+            <a
+            href="https://youtu.be/pa40ZJUaOCc"
+            target="https://youtu.be/pa40ZJUaOCc"
+            className="text-sm underline text-center">
+            Need Help? Click This
+            </a>
             </div>
           </div>
         </div>
