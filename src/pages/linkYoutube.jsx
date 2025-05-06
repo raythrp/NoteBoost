@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const YouTubeLogo = () => {
   return (
@@ -36,7 +36,7 @@ const LinkYoutube = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative w-full max-w-md p-6 bg-white rounded-lg">
+      <div className="relative w-full max-w-sm p-6 bg-white rounded-lg sm:max-w-md">
         {/* X Button (Close) */}
         <button
           onClick={onClose}
@@ -60,7 +60,7 @@ const LinkYoutube = ({ onClose }) => {
         <div className="flex justify-center mt-4">
           <a
             href="https://youtu.be/pa40ZJUaOCc"
-            target="https://youtu.be/pa40ZJUaOCc"
+            target="_blank"
             rel="noopener noreferrer"
           >
             <YouTubeLogo />

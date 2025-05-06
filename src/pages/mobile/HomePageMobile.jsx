@@ -16,6 +16,7 @@ function HomePage() {
   const [direction, setDirection] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 3;
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleEdit = (id) => {
     navigate(`/catatan/${id}`);
@@ -26,7 +27,6 @@ function HomePage() {
   };
 
   const handlePageChange = (page) => {
-    setDirection(page > currentPage ? 1 : -1);
     setCurrentPage(page);
   };
 
@@ -126,7 +126,7 @@ function HomePage() {
       {/* Page controls: arrows + dots */}
       {totalPages > 1 && (
         <div className="flex flex-col items-center gap-2 mt-6">
-          <div className="flex gap-16">
+          <div className="flex gap-8">
             <button
               onClick={() => {
                 if (currentPage > 0) {
