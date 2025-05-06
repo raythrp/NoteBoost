@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 
-function NoteCard({ id, title, onEdit, onDelete }) {
+
+function NoteCard({ id, title, content, onEdit, onDelete }) {
+  const plainText = (content && Array.isArray(content.ops))
+  ? content.ops.map(op => op.insert).join('')
+  : (typeof content === 'string' ? content : '');
   const [showMenu, setShowMenu] = useState(false);
 
   const toggleMenu = (e) => {
@@ -17,9 +21,8 @@ function NoteCard({ id, title, onEdit, onDelete }) {
     <div className="relative w-full">
       <div 
         className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2"
-        onClick={handleCardClick}
-      >
-        {/* Card content would go here */}
+        onClick={handleCardClick}>
+        {plainText.length > 100 ? plainText.slice(0, 100) + "..." : plainText}
       </div>
       <div className="flex items-center justify-between mt-2">
         <h3 className="text-base font-normal text-black">{title}</h3>

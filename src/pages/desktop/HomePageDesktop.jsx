@@ -110,6 +110,7 @@ function HomePage() {
                     id={note.id}
                     title={note.title}
                     onEdit={handleEdit}
+                    content={note.content}
                     onDelete={handleDelete}
                   />
                 ))}
