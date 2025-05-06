@@ -7,8 +7,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
-import { QuillDeltaToHtmlConverter, HtmlToDeltaConverter} from 'quill-delta-to-html';
-import Quill from 'quill';
+import { QuillDeltaToHtmlConverter} from 'quill-delta-to-html';
 
 export default function MenambahCatatan() {
   const { notes, refetchNotes } = useNotes();
