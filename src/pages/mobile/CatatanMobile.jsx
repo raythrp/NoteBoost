@@ -6,6 +6,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import { QuillDeltaToHtmlConverter, HtmlToDeltaConverter} from 'quill-delta-to-html';
+import Quill from 'quill';
 
 export default function CatatanMobile() {
   const { notes, refetchNotes } = useNotes();
@@ -24,7 +26,8 @@ export default function CatatanMobile() {
   const hasMounted = useRef(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
-  
+  const quillEnhancedRef = useRef(null);
+
   useEffect(() => {
     console.log("targetNote:", targetNote); // Check if topic is being passed correctly
   }, [targetNote]);
@@ -36,6 +39,77 @@ export default function CatatanMobile() {
     }
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
+
+  useEffect(() => {
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor();
+        if (editor) {
+          console.log("Quill editor is fully rendered.");
+        } else {
+          console.error("Quill editor is not initialized properly.");
+        }
+      }
+    }, [quillRef.current]);
+
+    const handleEnhance = async () => {
+      try {
+        if (quillRef.current) {
+          const updatedContent = quillRef.current.getEditor().getContents();
+          const updateResponse = await axios.put(
+            `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,
+            {
+              tanggal_waktu: new Date().toISOString(),
+              isi_catatan_asli: updatedContent,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+    
+          if (updateResponse.status === 200) {
+            console.log("Catatan berhasil diperbarui!");
+  
+            var cfg = {};
+            var converter = new QuillDeltaToHtmlConverter(updatedContent, cfg);
+            var htmlContent = converter.convert();
+            const enhanceResponse = await axios.post(
+              `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/enhance`,
+              {
+                htmlContent: htmlContent,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+    
+            if (enhanceResponse.status === 200) {
+              const { hasil_enhance } = enhanceResponse.data;
+              console.log("Hasil Enhance:", hasil_enhance);
+              const enhanceparser = hasil_enhance.replace(/^```[\w]*\n/, "").replace(/\n```$/, "");
+              const delta = quillRef.current.getEditor().clipboard.convert(enhanceparser);
+              setEnhancedContent(delta);
+              await axios.put(
+                `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-enhanced`,
+                {
+                  hasil_enhance: delta, 
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  },
+                }
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error during enhancement:", error);
+      }
+    };  
 
   const handleChange = (value) => {
     setContent(value);
@@ -75,17 +149,8 @@ export default function CatatanMobile() {
   }, [id, notes]);
 
   useEffect(() => {
-        console.log("targetNote:", targetNote); // Check if topic is being passed correctly
+        console.log("targetNote:", targetNote); 
   }, [targetNote]);
-
-  useEffect(() => {
-    if (quillRef.current) {
-      console.log('Quill editor initialized');
-    } else {
-      console.log('Quill editor is not initialized yet');
-    }
-  }, [quillRef]);
-
   
   const jenjangToClasses = {
     "SMP": ["Class 7", "Class 8", "Class 9"],
@@ -95,8 +160,7 @@ export default function CatatanMobile() {
 
 
   const getClassOptions = () => {
-    const jenjang = user?.jenjang || "Tidak Tersedia"; // Default to "Tidak Tersedia" if jenjang is not available
-    return jenjangToClasses[jenjang] || [];
+    const jenjang = user?.jenjang || "Tidak Tersedia";
   };
 
   const handleEdit = () => {
@@ -166,17 +230,6 @@ export default function CatatanMobile() {
     }
   };
 
-  // Function to update note content
-  // const handleContentChange = (value) => {
-  //   setContent(value);
-  //   setNotes((prevNotes) =>
-  //     prevNotes.map((note) =>
-  //       note.id === id ? { ...note, content: value } : note
-  //     )
-  //   );
-  // };
-
-  // Quill modules configuration - simplified for mobile
   const modules = {
     toolbar: [
       ['bold', 'italic', 'underline'],
@@ -186,6 +239,11 @@ export default function CatatanMobile() {
     ]
   };
 
+  const modules1 = {
+    toolbar: []
+  };
+
+
   // Quill formats
   const formats = [
     'bold', 'italic', 'underline',
@@ -194,9 +252,6 @@ export default function CatatanMobile() {
   
   // Function to split text into pages based on number of lines
   const splitIntoPages = (text, maxLinesPerPage) => {
-    // For Quill content, we'll need a different approach since it's HTML
-    // Here we'll treat each Quill content as a separate page
-    // In a production app, you might want to implement more sophisticated page splitting
     return [text];
   };
 
@@ -209,10 +264,6 @@ export default function CatatanMobile() {
   const handleMenuClick = () => {
     const userSlug = user.name?.toLowerCase().replace(/\s+/g, "-");
     navigate(`/${userSlug}`, { replace: true });
-  };
-
-  const handleEnhanceClick = () => {
-    console.log("Enhance clicked");
   };
 
   return (
@@ -229,7 +280,7 @@ export default function CatatanMobile() {
 
         {/* Enhance Button */}
         <button
-          onClick={handleEnhanceClick}
+          onClick={handleEnhance}
           className="ml-auto font-semibold text-blue-500"
         >
           Enhance
@@ -346,12 +397,12 @@ export default function CatatanMobile() {
                 >
                   <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                   <ReactQuill
-                    
+                    ref={quillEnhancedRef}
                     theme="snow"
                     value={enhancedContent}
                     onChange={handleEnhancedContentChange}
                     readOnly={true}
-                    modules={modules}
+                    modules={modules1}
                     formats={formats}
                     style={{
                       height: "300px", 
