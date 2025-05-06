@@ -6,6 +6,7 @@ import NoteCard from "../../components/NoteCard";
 import AddNoteButton from "../../components/mobile/AddNoteButtonMobile";
 import PageIndicator from "../../components/PageIndicator";
 import { useNotes } from "../../contexts/NoteContext";
+import { getNotes } from '../../services/noteService';
 import { Search } from "lucide-react";
 import LinkYoutube from '../linkYoutube';
 
