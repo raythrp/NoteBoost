@@ -6,7 +6,9 @@ import NoteCard from '../../components/NoteCard';
 import AddNoteButton from '../../components/desktop/AddNoteButtonDesktop';
 import PageIndicator from '../../components/PageIndicator';
 import { useNotes } from '../../contexts/NoteContext';
+import { getNotes } from '../../services/noteService';
 import { Search } from 'lucide-react';
+import LinkYoutube from '../linkYoutube';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ function HomePage() {
   const itemsPerPage = 12;
   const [direction, setDirection] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleEdit = (id) => {
     navigate(`/catatan/${id}`);
@@ -36,13 +39,6 @@ function HomePage() {
   : [];
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
   
@@ -59,6 +55,22 @@ function HomePage() {
     .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
+
+  useEffect(() => {
+    const hasClosedPopup = localStorage.getItem("popupClosed");
+    
+    const fetchNotes = async () => {
+      const allNotes = await getNotes();
+      if (allNotes.length === 0 && !hasClosedPopup && !loading) {
+        setShowPopup(true);
+      } else {
+        setShowPopup(false);
+      }
+    };
+
+    fetchNotes();
+  }, [loading]);
+
 
   return (
     <main className="flex flex-col w-full min-h-screen blue-gradient-bg">
@@ -152,6 +164,12 @@ function HomePage() {
 
       {/* Tombol tambah catatan */}
       <AddNoteButton />
+       {/* Show popup if no notes */}
+       {showPopup && (
+        <LinkYoutube
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </main>
   );
 }

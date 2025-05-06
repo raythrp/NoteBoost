@@ -7,6 +7,7 @@ import AddNoteButton from "../../components/mobile/AddNoteButtonMobile";
 import PageIndicator from "../../components/PageIndicator";
 import { useNotes } from "../../contexts/NoteContext";
 import { Search } from "lucide-react";
+import LinkYoutube from '../linkYoutube';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -59,6 +60,21 @@ function HomePage() {
     .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
+
+  useEffect(() => {
+    const hasClosedPopup = localStorage.getItem("popupClosed");
+    
+    const fetchNotes = async () => {
+      const allNotes = await getNotes();
+      if (allNotes.length === 0 && !hasClosedPopup && !loading) {
+        setShowPopup(true);
+      } else {
+        setShowPopup(false);
+      }
+    };
+
+    fetchNotes();
+  }, [loading]);
 
   return (
     <main className="min-h-screen blue-gradient-bg from-blue-500 to-blue-800">
@@ -146,6 +162,12 @@ function HomePage() {
       )}
 
       <AddNoteButton />
+       {/* Show popup if no notes */}
+       {showPopup && (
+        <LinkYoutube
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </main>
   );
 }
