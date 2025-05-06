@@ -9,17 +9,51 @@ import {
 import { auth } from "../firebase"; 
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
   const BASE_URL = "https://noteboost-serve-772262781875.asia-southeast2.run.app";
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const checkToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await axios.post(`${BASE_URL}/api/auth/check`, null, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (err) {
+        console.error("Token check failed", err);
+
+        if (err.response?.status === 401) {
+          // 👇 Token invalid, force logout
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+          navigate("/login"); // 👈 Redirect
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkToken();
+  }, [navigate]);
   
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");  
+    
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
