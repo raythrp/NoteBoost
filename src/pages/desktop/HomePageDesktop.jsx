@@ -168,7 +168,6 @@ function HomePage() {
        {showPopup && (
         <LinkYoutube
           onClose={() => setShowPopup(false)}
-          email="user@example.com"
         />
       )}
     </main>
