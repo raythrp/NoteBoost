@@ -18,10 +18,11 @@ function NoteCard({ id, title, content, onEdit, onDelete }) {
   };
 
   return (
-    <div className="relative w-full">
-      <div 
-        className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2"
-        onClick={handleCardClick}>
+    <div className="relative w-full sm:w-[calc(100%-16px)] max-w-full p-2 mb-2">
+      <div
+        className="w-full h-[120px] bg-white shadow-md rounded-lg p-2 mb-2 overflow-hidden text-ellipsis"
+        onClick={handleCardClick}
+      >
         {plainText.length > 100 ? plainText.slice(0, 100) + "..." : plainText}
       </div>
       <div className="flex items-center justify-between mt-2">
