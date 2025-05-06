@@ -40,17 +40,6 @@ export default function CatatanMobile() {
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
 
-  useEffect(() => {
-      if (quillRef.current) {
-        const editor = quillRef.current.getEditor();
-        if (editor) {
-          console.log("Quill editor is fully rendered.");
-        } else {
-          console.error("Quill editor is not initialized properly.");
-        }
-      }
-    }, [quillRef.current]);
-
     const handleEnhance = async () => {
       try {
         if (quillRef.current) {
@@ -158,9 +147,9 @@ export default function CatatanMobile() {
     "Tidak Tersedia": [],
   };
 
-
   const getClassOptions = () => {
     const jenjang = user?.jenjang || "Tidak Tersedia";
+    return jenjangToClasses[jenjang] || []; 
   };
 
   const handleEdit = () => {
