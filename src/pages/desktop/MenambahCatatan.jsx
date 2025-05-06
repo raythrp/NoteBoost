@@ -7,13 +7,15 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import { QuillDeltaToHtmlConverter, HtmlToDeltaConverter} from 'quill-delta-to-html';
+import Quill from 'quill';
 
 export default function MenambahCatatan() {
-  const { notes, refetchNotes } = useNotes();// Ambil daftar catatan dari context
+  const { notes, refetchNotes } = useNotes();
   const { id } = useParams();
   const navigate = useNavigate();
   const targetNote = notes.find(note => note.id === id);
-  const [content, setContent] = useState(targetNote?.content || ""); // Konten catatan
+  const [content, setContent] = useState(targetNote?.content || ""); 
   const [classValue, setClassValue] = useState(targetNote?.selectedClass || "Class not available");
   const [subjectValue, setSubjectValue] = useState(targetNote?.subject || "Subject not available");
   const [topicValue, setTopicValue] = useState(targetNote?.topic || "Topic not available");
@@ -21,6 +23,7 @@ export default function MenambahCatatan() {
   const [isEditable, setIsEditable] = useState(false);
   const [flashMessage, setFlashMessage] = useState("");
   const quillRef = useRef(null);
+  const quillEnhancedRef = useRef(null);
   const { user } = useAuth();
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
@@ -28,11 +31,82 @@ export default function MenambahCatatan() {
 
   useEffect(() => {
     if (!targetNote) {
-      navigate('/'); // Optional: Redirect if note not found
+      navigate('/'); 
       return;
     }
     setContent(targetNote.content || '');
   }, [targetNote, navigate]);
+
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      if (editor) {
+        console.log("Quill editor is fully rendered.");
+      } else {
+        console.error("Quill editor is not initialized properly.");
+      }
+    }
+  }, [quillRef.current]);
+  
+  const handleEnhance = async () => {
+    try {
+      if (quillRef.current) {
+        const updatedContent = quillRef.current.getEditor().getContents();
+        const updateResponse = await axios.put(
+          `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}`,
+          {
+            tanggal_waktu: new Date().toISOString(),
+            isi_catatan_asli: updatedContent,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+  
+        if (updateResponse.status === 200) {
+          console.log("Catatan berhasil diperbarui!");
+
+          var cfg = {};
+          var converter = new QuillDeltaToHtmlConverter(updatedContent, cfg);
+          var htmlContent = converter.convert();
+          const enhanceResponse = await axios.post(
+            `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/enhance`,
+            {
+              htmlContent: htmlContent,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+  
+          if (enhanceResponse.status === 200) {
+            const { hasil_enhance } = enhanceResponse.data;
+            console.log("Hasil Enhance:", hasil_enhance);
+            const enhanceparser = hasil_enhance.replace(/^```[\w]*\n/, "").replace(/\n```$/, "");
+            const delta = quillRef.current.getEditor().clipboard.convert(enhanceparser);
+            setEnhancedContent(delta);
+            await axios.put(
+              `https://noteboost-serve-772262781875.asia-southeast2.run.app/api/history/${id}/update-enhanced`,
+              {
+                hasil_enhance: delta, 
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error during enhancement:", error);
+    }
+  };  
 
   const handleChange = (value) => {
     setContent(value);
@@ -92,9 +166,12 @@ export default function MenambahCatatan() {
       [{ 'color': [] }, { 'background': [] }],
       [{ 'align': [] }],
       [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'line-height': ['1', '1.5', '2', '2.5'] }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }]
     ]
+  };
+
+  const modules1 = {
+    toolbar: []
   };
 
   // Quill formats
@@ -203,7 +280,7 @@ export default function MenambahCatatan() {
                     {/* Header */}
                     <div className="flex justify-between mb-2 text-sm">
                       <span>Notes</span>
-                      <button className="font-semibold text-blue-500">
+                      <button className="font-semibold text-blue-500" onClick={handleEnhance}>
                         Enhance
                       </button>
                     </div>
@@ -276,22 +353,23 @@ export default function MenambahCatatan() {
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
-                          <ReactQuill
-                            ref={quillRef}
-                            theme="snow"
-                            value={content}
-                            modules={modules}
-                            onChange={handleChange}
-                            formats={formats}
-                            readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
-                            style={{
-                              height: "300px", 
-                              minHeight: "500px", 
-                              overflow: "hidden", 
-                              borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
-                              paddingTop: "20px",
-                            }}
-                          />
+                          <div>
+                              <ReactQuill
+                                ref={quillRef}
+                                theme="snow"
+                                value={content}
+                                modules={modules}
+                                onChange={handleChange}
+                                formats={formats}
+                                style={{
+                                  height: "300px", 
+                                  minHeight: "500px", 
+                                  overflow: "hidden", 
+                                  borderTop: "1px solid #e0e0e0",
+                                  paddingTop: "20px",
+                                }}
+                              />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -305,17 +383,18 @@ export default function MenambahCatatan() {
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                           <ReactQuill
+                            ref={quillEnhancedRef}
                             theme="snow"
                             value={enhancedContent}
                             onChange={handleEnhancedContentChange} 
                             readOnly={true}
-                            modules={modules}
+                            modules={modules1}
                             formats={formats}
                             style={{
                               height: "300px", 
                               minHeight: "500px", 
                               overflow: "hidden", 
-                              borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
+                              borderTop: "1px solid #e0e0e0",
                               paddingTop: "20px",
                             }}
                           />

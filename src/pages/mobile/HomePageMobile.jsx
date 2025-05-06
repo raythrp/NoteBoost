@@ -64,7 +64,6 @@ function HomePage() {
 
   useEffect(() => {
     const hasClosedPopup = localStorage.getItem("popupClosed");
-    
     const fetchNotes = async () => {
       const allNotes = await getNotes();
       if (allNotes.length === 0 && !hasClosedPopup && !loading) {
