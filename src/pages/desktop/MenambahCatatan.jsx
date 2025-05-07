@@ -107,8 +107,12 @@ export default function MenambahCatatan() {
     }
   };  
 
-  const handleChange = (value) => {
+  const handleChange = (value, delta, source) => {
     setContent(value);
+    if (source !== 'user') {
+      // Skip auto-saving if the change didn't come from the user
+      return;
+    }
     if (!hasMounted.current) {
       // Ignore Quill's initial load change
       hasMounted.current = true;
@@ -351,7 +355,13 @@ export default function MenambahCatatan() {
                           key={index}
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                         >
-                          <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
+                          <h2 className="text-lg font-semibold text-black text-center">
+                            {hasUserInput
+                              ? "📝 Catatan is unsaved!"
+                              : flashMessage
+                              ? `💾 Catatan ${flashMessage}...`
+                              : "📒 Catatan"}
+                          </h2>
                           <div>
                               <ReactQuill
                                 ref={quillRef}
