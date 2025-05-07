@@ -151,6 +151,35 @@ export default function CatatanMobile() {
     "Tidak Tersedia": [],
   };
 
+  useEffect(() => {
+      const editor = quillRef.current?.getEditor();
+      const editorElement = editor?.root;
+    
+      const handleKeyUp = (e) => {
+        if ([" ", "Backspace"].includes(e.key)) {
+          setHasUserInput(true);
+          if (typingTimeout) clearTimeout(typingTimeout);
+    
+          setTypingTimeout(setTimeout(async () => {
+            if (hasUserInput) {
+              await handleAutoSave();
+              setHasUserInput(false);
+            }
+          }, 5000));
+        }
+      };
+    
+      if (editorElement) {
+        editorElement.addEventListener("keyup", handleKeyUp);
+      }
+    
+      return () => {
+        if (editorElement) {
+          editorElement.removeEventListener("keyup", handleKeyUp);
+        }
+      };
+    }, [typingTimeout, hasUserInput]);
+
   const getClassOptions = () => {
     const jenjang = user?.jenjang || "Tidak Tersedia";
     return jenjangToClasses[jenjang] || []; 
