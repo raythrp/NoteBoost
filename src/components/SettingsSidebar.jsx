@@ -129,7 +129,7 @@ export default function SettingsSidebar({
             {/* Logo */}
             <div className="text-white text-3xl mb-1">📄</div>
             <h1 className="text-white text-lg font-bold tracking-wide">
-              NOTEBOOST
+              {loading ? "Changing Avatar..." : "NOTEBOOST"}
             </h1>
 
             {/* Profile Picture */}
