@@ -27,6 +27,7 @@ export default function MenambahCatatan() {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
   const hasMounted = useRef(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   useEffect(() => {
     if (!targetNote) {
@@ -48,6 +49,7 @@ export default function MenambahCatatan() {
   }, [quillRef.current]);
   
   const handleEnhance = async () => {
+    setIsEnhancing(true);
     try {
       if (quillRef.current) {
         const updatedContent = quillRef.current.getEditor().getContents();
@@ -104,6 +106,8 @@ export default function MenambahCatatan() {
       }
     } catch (error) {
       console.error("Error during enhancement:", error);
+    } finally {
+      setIsEnhancing(false);
     }
   };  
 
@@ -312,8 +316,8 @@ export default function MenambahCatatan() {
                     {/* Header */}
                     <div className="flex justify-between mb-2 text-sm">
                       <span>Notes</span>
-                      <button className="font-semibold text-blue-500" onClick={handleEnhance}>
-                        Enhance
+                      <button className="font-semibold text-blue-500" onClick={handleEnhance} disabled={isEnhancing}>
+                        {isEnhancing ? "Enhancing..." : "Enhance"}
                       </button>
                     </div>
                     <hr className="mb-4 border-gray-300" />
@@ -386,7 +390,7 @@ export default function MenambahCatatan() {
                         >
                           <h2 className="text-lg font-semibold text-black text-center">
                             {hasUserInput
-                              ? "📝 Catatan is unsaved!"
+                              ? "📝 Catatan is unsaved, don't leave page!"
                               : flashMessage
                               ? `💾 Catatan ${flashMessage}...`
                               : "📒 Catatan"}

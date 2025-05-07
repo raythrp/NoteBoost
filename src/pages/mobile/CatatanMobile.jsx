@@ -26,6 +26,7 @@ export default function CatatanMobile() {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [hasUserInput, setHasUserInput] = useState(false);
   const quillEnhancedRef = useRef(null);
+    const [isEnhancing, setIsEnhancing] = useState(false);
 
   useEffect(() => {
     console.log("targetNote:", targetNote); // Check if topic is being passed correctly
@@ -40,6 +41,7 @@ export default function CatatanMobile() {
   }, [targetNote, navigate]);
 
     const handleEnhance = async () => {
+      setIsEnhancing(true);
       try {
         if (quillRef.current) {
           const updatedContent = quillRef.current.getEditor().getContents();
@@ -96,6 +98,8 @@ export default function CatatanMobile() {
         }
       } catch (error) {
         console.error("Error during enhancement:", error);
+      } finally {
+        setIsEnhancing(false);
       }
     };  
 
@@ -304,8 +308,9 @@ export default function CatatanMobile() {
         <button
           onClick={handleEnhance}
           className="ml-auto font-semibold text-blue-500"
+          disabled={isEnhancing}
         >
-          Enhance
+          {isEnhancing ? "Enhancing..." : "Enhance"}
         </button>
       </div>
 
@@ -386,7 +391,7 @@ export default function CatatanMobile() {
                 >
                   <h2 className="text-lg font-semibold text-black text-center">
                     {hasUserInput
-                      ? "📝 Catatan is unsaved!"
+                      ? "📝 Catatan is unsaved, don't leave page!"
                       : flashMessage
                       ? `💾 Catatan ${flashMessage}...`
                       : "📒 Catatan"}
