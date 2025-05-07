@@ -59,7 +59,7 @@ const LinkYoutube = ({ onClose }) => {
         {/* YouTube Logo Link */}
         <div className="flex justify-center mt-4">
           <a
-            href="https://youtu.be/pa40ZJUaOCc"
+            href="https://www.youtube.com/watch?v=1BX-XSUEs28"
             target="_blank"
             rel="noopener noreferrer"
           >
