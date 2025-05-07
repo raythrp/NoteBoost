@@ -107,8 +107,12 @@ export default function MenambahCatatan() {
     }
   };  
 
-  const handleChange = (value) => {
+  const handleChange = (value, delta, source) => {
     setContent(value);
+    if (source !== 'user') {
+      // Skip auto-saving if the change didn't come from the user
+      return;
+    }
     if (!hasMounted.current) {
       // Ignore Quill's initial load change
       hasMounted.current = true;
@@ -151,6 +155,35 @@ export default function MenambahCatatan() {
     "SMA": ["Class 10", "Class 11", "Class 12"],
     "Tidak Tersedia": [],
   };
+
+  useEffect(() => {
+    const editor = quillRef.current?.getEditor();
+    const editorElement = editor?.root;
+  
+    const handleKeyUp = (e) => {
+      if ([" ", "Backspace"].includes(e.key)) {
+        setHasUserInput(true);
+        if (typingTimeout) clearTimeout(typingTimeout);
+  
+        setTypingTimeout(setTimeout(async () => {
+          if (hasUserInput) {
+            await handleAutoSave();
+            setHasUserInput(false);
+          }
+        }, 5000));
+      }
+    };
+  
+    if (editorElement) {
+      editorElement.addEventListener("keyup", handleKeyUp);
+    }
+  
+    return () => {
+      if (editorElement) {
+        editorElement.removeEventListener("keyup", handleKeyUp);
+      }
+    };
+  }, [typingTimeout, hasUserInput]);
 
   const getClassOptions = () => {
     const jenjang = user?.jenjang || "Tidak Tersedia"; // Default to "Tidak Tersedia" if jenjang is not available
@@ -351,7 +384,13 @@ export default function MenambahCatatan() {
                           key={index}
                           className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
                         >
-                          <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
+                          <h2 className="text-lg font-semibold text-black text-center">
+                            {hasUserInput
+                              ? "📝 Catatan is unsaved!"
+                              : flashMessage
+                              ? `💾 Catatan ${flashMessage}...`
+                              : "📒 Catatan"}
+                          </h2>
                           <div>
                               <ReactQuill
                                 ref={quillRef}
@@ -363,7 +402,7 @@ export default function MenambahCatatan() {
                                 style={{
                                   height: "300px", 
                                   minHeight: "500px", 
-                                  overflow: "hidden", 
+                                  overflow: "auto", 
                                   borderTop: "1px solid #e0e0e0",
                                   paddingTop: "20px",
                                 }}
@@ -374,11 +413,11 @@ export default function MenambahCatatan() {
                     </div>
 
                     {/* Enhanced Content Section */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 over">
                       {pages.map((page, index) => (
                         <div
                           key={index}
-                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
+                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md overflow-hidden"
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                           <ReactQuill
@@ -392,7 +431,7 @@ export default function MenambahCatatan() {
                             style={{
                               height: "300px", 
                               minHeight: "500px", 
-                              overflow: "hidden", 
+                              overflow: "auto", 
                               borderTop: "1px solid #e0e0e0",
                               paddingTop: "20px",
                             }}

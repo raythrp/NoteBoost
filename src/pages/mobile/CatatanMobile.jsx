@@ -99,8 +99,13 @@ export default function CatatanMobile() {
       }
     };  
 
-  const handleChange = (value) => {
+  const handleChange = (value, delta, source) => {
     setContent(value);
+    if (source !== 'user') {
+      // Skip auto-saving if the change didn't come from the user
+      return;
+    }
+
     if (!hasMounted.current) {
       // Ignore Quill's initial load change
       hasMounted.current = true;
@@ -145,6 +150,35 @@ export default function CatatanMobile() {
     "SMA": ["Class 10", "Class 11", "Class 12"],
     "Tidak Tersedia": [],
   };
+
+  useEffect(() => {
+      const editor = quillRef.current?.getEditor();
+      const editorElement = editor?.root;
+    
+      const handleKeyUp = (e) => {
+        if ([" ", "Backspace"].includes(e.key)) {
+          setHasUserInput(true);
+          if (typingTimeout) clearTimeout(typingTimeout);
+    
+          setTypingTimeout(setTimeout(async () => {
+            if (hasUserInput) {
+              await handleAutoSave();
+              setHasUserInput(false);
+            }
+          }, 5000));
+        }
+      };
+    
+      if (editorElement) {
+        editorElement.addEventListener("keyup", handleKeyUp);
+      }
+    
+      return () => {
+        if (editorElement) {
+          editorElement.removeEventListener("keyup", handleKeyUp);
+        }
+      };
+    }, [typingTimeout, hasUserInput]);
 
   const getClassOptions = () => {
     const jenjang = user?.jenjang || "Tidak Tersedia";
@@ -350,7 +384,13 @@ export default function CatatanMobile() {
                     pageBreakAfter: "always",
                   }}
                 >
-                  <h2 className="text-lg font-semibold text-black text-center">Catatan {flashMessage}</h2>
+                  <h2 className="text-lg font-semibold text-black text-center">
+                    {hasUserInput
+                      ? "📝 Catatan is unsaved!"
+                      : flashMessage
+                      ? `💾 Catatan ${flashMessage}...`
+                      : "📒 Catatan"}
+                  </h2>
                   <ReactQuill
                     ref= {quillRef}
                     theme="snow"
@@ -360,7 +400,7 @@ export default function CatatanMobile() {
                     formats={formats}
                     readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
                     style={{
-                      height: "300px", 
+                      height: "auto", 
                       minHeight: "600px", 
                       overflow: "hidden", 
                       borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
@@ -395,7 +435,7 @@ export default function CatatanMobile() {
                     style={{
                       height: "300px", 
                       minHeight: "600px", 
-                      overflow: "hidden", 
+                      overflow: "auto", 
                       borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
                       paddingTop: "20px",
                     }}
