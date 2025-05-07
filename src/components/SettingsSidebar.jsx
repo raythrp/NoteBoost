@@ -214,8 +214,8 @@ export default function SettingsSidebar({
             {/* Link Youtube */}
             <div className="flex justify-center items-center w-full pt-4">
             <a
-            href="https://youtu.be/pa40ZJUaOCc"
-            target="https://youtu.be/pa40ZJUaOCc"
+            href="https://www.youtube.com/watch?v=1BX-XSUEs28"
+            target="https://www.youtube.com/watch?v=1BX-XSUEs28"
             className="text-sm underline text-center">
             Need Help? Click This
             </a>
