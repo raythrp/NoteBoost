@@ -371,7 +371,7 @@ export default function CatatanMobile() {
                     formats={formats}
                     readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
                     style={{
-                      height: "300px", 
+                      height: "auto", 
                       minHeight: "600px", 
                       overflow: "hidden", 
                       borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
@@ -406,7 +406,7 @@ export default function CatatanMobile() {
                     style={{
                       height: "300px", 
                       minHeight: "600px", 
-                      overflow: "hidden", 
+                      overflow: "auto", 
                       borderTop: "1px solid #e0e0e0", // Add separator between content and enhanced section
                       paddingTop: "20px",
                     }}
