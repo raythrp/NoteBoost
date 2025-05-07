@@ -373,7 +373,7 @@ export default function MenambahCatatan() {
                                 style={{
                                   height: "300px", 
                                   minHeight: "500px", 
-                                  overflow: "hidden", 
+                                  overflow: "auto", 
                                   borderTop: "1px solid #e0e0e0",
                                   paddingTop: "20px",
                                 }}
@@ -384,11 +384,11 @@ export default function MenambahCatatan() {
                     </div>
 
                     {/* Enhanced Content Section */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 over">
                       {pages.map((page, index) => (
                         <div
                           key={index}
-                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md"
+                          className="p-4 bg-white border border-gray-300 rounded-md shadow-md overflow-hidden"
                         >
                           <h2 className="text-lg font-semibold text-black text-center">Hasil Enhance</h2>
                           <ReactQuill
@@ -402,7 +402,7 @@ export default function MenambahCatatan() {
                             style={{
                               height: "300px", 
                               minHeight: "500px", 
-                              overflow: "hidden", 
+                              overflow: "auto", 
                               borderTop: "1px solid #e0e0e0",
                               paddingTop: "20px",
                             }}
