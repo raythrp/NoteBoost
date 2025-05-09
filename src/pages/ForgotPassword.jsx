@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth} from "firebase/auth";
+import axios from "axios";
 
 const ForgotPassword = ({ onClose, email: initialEmail }) => {
   const [email, setEmail] = useState(initialEmail || "");
@@ -16,19 +17,16 @@ const ForgotPassword = ({ onClose, email: initialEmail }) => {
     setError("");
 
     try {
-      const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
+      const response = await axios.post(
+        `${BASE_URL}/api/auth/reset-password`,
+        {email},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = response.data;
 
       setMessage("Password reset email sent! Please check your inbox.");
       setTimeout(() => {
