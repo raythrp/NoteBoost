@@ -403,6 +403,7 @@ export default function MenambahCatatan() {
                                 modules={modules}
                                 onChange={handleChange}
                                 formats={formats}
+                                readOnly={flashMessage === "is saving!" ? true : false} // Conditional readOnly
                                 style={{
                                   height: "300px", 
                                   minHeight: "500px", 
@@ -410,6 +411,7 @@ export default function MenambahCatatan() {
                                   borderTop: "1px solid #e0e0e0",
                                   paddingTop: "20px",
                                 }}
+                                placeholder="Write your notes here..."
                               />
                           </div>
                         </div>
