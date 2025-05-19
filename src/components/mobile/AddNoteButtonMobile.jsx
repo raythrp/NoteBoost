@@ -18,7 +18,7 @@ function AddNoteButton() {
   }
 
   const handleUploadClick = () => {
-    navigate("/upload")
+    navigate("/add?upload=true")
     setIsMenuOpen(false)
   }
 
