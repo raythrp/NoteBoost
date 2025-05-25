@@ -59,11 +59,23 @@ const Signup = () => {
       const idToken = await user.getIdToken();
       localStorage.setItem("token", idToken);
 
-      const res = await axios.post(`${BASE_URL}/api/auth/login`, { idToken });
+      const res = await axios.post("/api/auth/login", { idToken });
+      let photoUrl = "";
+      try {
+        const photoRes = await axios.get(`${BASE_URL}/api/profilepic/get-profile-picture?email=${res.data.email}`, {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
+        photoUrl = photoRes.data.photoUrl;
+      } catch (err) {
+        console.error("Failed to fetch profile picture (Google):", err);
+      }
       const fullUser = {
         email: res.data.email,
-        name: user.displayName || res.data.nama || "Cacing Pintar",
+        name: user.displayName || res.data.nama || "Smart User",
         jenjang: res.data.jenjang, 
+        photoUrl: photoUrl || "/profile.jpg",
       };
 
       setUser(fullUser);
@@ -76,12 +88,12 @@ const Signup = () => {
         navigate(`/${userSlug}`, { replace: true });
       }
     } catch (err) {
-      setErrorMessage("Terjadi kesalahan. Silakan coba lagi.");
+      setErrorMessage("An error occurred. Please try again.");
       console.error("Error:", err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-screen px-4 bg-white">
