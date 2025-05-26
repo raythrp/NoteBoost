@@ -31,10 +31,19 @@ function AddNotePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const note = await addNote(topic, selectedClass, subject, content);
-    // Note id belom ada
-    navigate(`/catatan/${note.id}`);
-  }
+    try {
+      const note = await addNote(topic, selectedClass, subject, content);
+      if (note && note.id) {
+        navigate(`/catatan/${note.id}`);
+      } else {
+        console.error("Gagal membuat catatan:", note);
+        alert("Terjadi kesalahan saat menyimpan catatan.");
+      }
+    } catch (err) {
+      console.error("Error saat menyimpan:", err);
+      alert("Gagal menyimpan catatan. Coba lagi.");
+    }
+  };
 
   const jenjangToClasses = {
     "SMP": ["Class 7", "Class 8", "Class 9"],
